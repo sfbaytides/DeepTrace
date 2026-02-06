@@ -1,8 +1,8 @@
 """Tests for NLP entity extraction."""
 
-import pytest
-
 import importlib.util
+
+import pytest
 
 HAS_SPACY = importlib.util.find_spec("spacy") is not None
 

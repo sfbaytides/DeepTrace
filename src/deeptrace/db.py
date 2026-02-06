@@ -90,11 +90,15 @@ CREATE TABLE IF NOT EXISTS evidence_items (
     name TEXT NOT NULL,
     evidence_type TEXT NOT NULL,
     description TEXT,
-    status TEXT NOT NULL DEFAULT 'known' CHECK(status IN ('known', 'processed', 'pending', 'inconclusive', 'missing')),
+    status TEXT NOT NULL DEFAULT 'known'
+        CHECK(status IN ('known', 'processed', 'pending',
+                         'inconclusive', 'missing')),
     source_id INTEGER REFERENCES sources(id),
     original_testing TEXT,
     contemporary_testing_available TEXT,
-    resubmission_status TEXT DEFAULT 'not_needed' CHECK(resubmission_status IN ('not_needed', 'recommended', 'submitted', 'completed')),
+    resubmission_status TEXT DEFAULT 'not_needed'
+        CHECK(resubmission_status IN ('not_needed', 'recommended',
+                                      'submitted', 'completed')),
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -165,7 +169,9 @@ CREATE TABLE IF NOT EXISTS case_review_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     category TEXT NOT NULL,
     item_name TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'not_available' CHECK(status IN ('located', 'reviewed', 'not_available', 'not_applicable', 'needs_followup')),
+    status TEXT NOT NULL DEFAULT 'not_available'
+        CHECK(status IN ('located', 'reviewed', 'not_available',
+                         'not_applicable', 'needs_followup')),
     notes TEXT,
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

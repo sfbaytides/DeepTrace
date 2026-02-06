@@ -17,7 +17,7 @@ def _get_nlp():
             except OSError:
                 raise RuntimeError(
                     "No spaCy model found. Run: python -m spacy download en_core_web_lg"
-                )
+                ) from None
     return _nlp
 
 
