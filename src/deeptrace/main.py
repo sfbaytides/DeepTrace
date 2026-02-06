@@ -2,7 +2,7 @@
 
 import typer
 
-from deeptrace import __version__
+from deeptrace.commands import cases
 
 app = typer.Typer(
     name="deeptrace",
@@ -11,12 +11,6 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-
-@app.callback(invoke_without_command=True)
-def main(
-    version: bool = typer.Option(False, "--version", "-V", help="Show version and exit."),
-) -> None:
-    """Cold case investigation platform."""
-    if version:
-        typer.echo(f"deeptrace {__version__}")
-        raise typer.Exit()
+app.command(name="new", rich_help_panel="Case Management")(cases.new)
+app.command(name="open", rich_help_panel="Case Management")(cases.open_case)
+app.command(name="cases", rich_help_panel="Case Management")(cases.list_cases)
