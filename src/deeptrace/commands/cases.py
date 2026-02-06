@@ -19,7 +19,7 @@ def new(
         console.print(f"Created case [bold green]{slug}[/]")
     except FileExistsError as e:
         err_console.print(f"[bold red]Error:[/] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 def open_case(
@@ -33,7 +33,7 @@ def open_case(
         state.close_case()
     except FileNotFoundError as e:
         err_console.print(f"[bold red]Error:[/] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 def list_cases() -> None:

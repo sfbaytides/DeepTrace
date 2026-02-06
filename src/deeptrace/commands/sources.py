@@ -12,7 +12,10 @@ from deeptrace.db import CaseDatabase
 
 def add_source(
     case: Annotated[str, typer.Option(help="Case slug")],
-    type: Annotated[str, typer.Option(help="Source type: news, official, social, document, manual")],
+    type: Annotated[
+        str,
+        typer.Option(help="Source type: news, official, social, document, manual"),
+    ],
     text: Annotated[str, typer.Option(help="Source text content")],
     url: Annotated[str | None, typer.Option(help="Source URL")] = None,
     reliability: Annotated[float, typer.Option(help="Reliability score 0.0-1.0")] = 0.5,

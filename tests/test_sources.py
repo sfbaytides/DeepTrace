@@ -22,7 +22,11 @@ class TestAddSource:
     def test_add_source_with_text(self, runner, case_with_db, tmp_cases_dir):
         result = runner.invoke(
             app,
-            ["add-source", "--case", case_with_db, "--type", "news", "--text", "Article content here"],
+            [
+                "add-source", "--case", case_with_db,
+                "--type", "news",
+                "--text", "Article content here",
+            ],
         )
         assert result.exit_code == 0
         assert "Added source" in result.output

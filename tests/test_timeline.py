@@ -60,11 +60,19 @@ class TestTimelineShow:
     def test_show_timeline_with_events(self, runner, case_with_db):
         runner.invoke(
             app,
-            ["timeline", "add", "Event one", "--case", case_with_db, "--date", "2024-01-31T21:00:00"],
+            [
+                "timeline", "add", "Event one",
+                "--case", case_with_db,
+                "--date", "2024-01-31T21:00:00",
+            ],
         )
         runner.invoke(
             app,
-            ["timeline", "add", "Event two", "--case", case_with_db, "--date", "2024-02-01T02:00:00"],
+            [
+                "timeline", "add", "Event two",
+                "--case", case_with_db,
+                "--date", "2024-02-01T02:00:00",
+            ],
         )
         result = runner.invoke(app, ["timeline", "show", "--case", case_with_db])
         assert result.exit_code == 0
@@ -80,11 +88,19 @@ class TestTimelineGaps:
     def test_identifies_gap(self, runner, case_with_db):
         runner.invoke(
             app,
-            ["timeline", "add", "Event one", "--case", case_with_db, "--date", "2024-01-31T21:00:00"],
+            [
+                "timeline", "add", "Event one",
+                "--case", case_with_db,
+                "--date", "2024-01-31T21:00:00",
+            ],
         )
         runner.invoke(
             app,
-            ["timeline", "add", "Event two", "--case", case_with_db, "--date", "2024-02-01T14:00:00"],
+            [
+                "timeline", "add", "Event two",
+                "--case", case_with_db,
+                "--date", "2024-02-01T14:00:00",
+            ],
         )
         result = runner.invoke(app, ["timeline", "gaps", "--case", case_with_db])
         assert result.exit_code == 0

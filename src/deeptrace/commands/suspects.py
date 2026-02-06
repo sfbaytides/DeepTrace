@@ -35,7 +35,9 @@ def add(
     try:
         with db.transaction() as cursor:
             cursor.execute(
-                "INSERT INTO suspect_pools (category, description, supporting_evidence) VALUES (?, ?, ?)",
+                """INSERT INTO suspect_pools
+                   (category, description, supporting_evidence)
+                   VALUES (?, ?, ?)""",
                 (category, description, evidence),
             )
         console.print(f"Added suspect pool: [bold cyan]{category}[/]")

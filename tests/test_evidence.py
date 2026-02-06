@@ -56,7 +56,12 @@ class TestEvidenceAdd:
     def test_all_statuses_accepted(self, runner, case_with_db, status):
         result = runner.invoke(
             app,
-            ["evidence", "add", f"Item {status}", "--case", case_with_db, "--type", "physical", "--status", status],
+            [
+                "evidence", "add", f"Item {status}",
+                "--case", case_with_db,
+                "--type", "physical",
+                "--status", status,
+            ],
         )
         assert result.exit_code == 0
 
@@ -74,7 +79,12 @@ class TestEvidenceShow:
         )
         runner.invoke(
             app,
-            ["evidence", "add", "DNA sample", "--case", case_with_db, "--type", "physical", "--status", "pending"],
+            [
+                "evidence", "add", "DNA sample",
+                "--case", case_with_db,
+                "--type", "physical",
+                "--status", "pending",
+            ],
         )
         result = runner.invoke(app, ["evidence", "show", "--case", case_with_db])
         assert "Camera footage" in result.output

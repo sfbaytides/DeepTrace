@@ -2,16 +2,14 @@
 
 import pytest
 
-try:
-    import spacy
-    HAS_SPACY = True
-except (ImportError, Exception):
-    HAS_SPACY = False
+import importlib.util
+
+HAS_SPACY = importlib.util.find_spec("spacy") is not None
 
 pytestmark = pytest.mark.skipif(not HAS_SPACY, reason="spaCy not installed")
 
 
-from deeptrace.nlp import extract_entities
+from deeptrace.nlp import extract_entities  # noqa: E402
 
 
 class TestEntityExtraction:

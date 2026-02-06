@@ -37,7 +37,9 @@ def add(
     try:
         with db.transaction() as cursor:
             cursor.execute(
-                """INSERT INTO events (timestamp_start, timestamp_end, description, confidence, source_id)
+                """INSERT INTO events
+                   (timestamp_start, timestamp_end, description,
+                    confidence, source_id)
                    VALUES (?, ?, ?, ?, ?)""",
                 (date, date_end, description, confidence, source_id),
             )

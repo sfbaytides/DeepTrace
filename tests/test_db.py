@@ -89,9 +89,16 @@ class TestCaseDatabase:
         """Test Admiralty/NATO source reliability fields."""
         with db.transaction() as cursor:
             cursor.execute(
-                """INSERT INTO sources (raw_text, source_type, source_reliability, information_accuracy, access_assessment, bias_assessment)
+                """INSERT INTO sources
+                   (raw_text, source_type, source_reliability,
+                    information_accuracy, access_assessment,
+                    bias_assessment)
                    VALUES (?, ?, ?, ?, ?, ?)""",
-                ("Sheriff statement", "official", "A", "2", "Direct involvement", "Law enforcement perspective"),
+                (
+                    "Sheriff statement", "official", "A", "2",
+                    "Direct involvement",
+                    "Law enforcement perspective",
+                ),
             )
         sources = db.fetchall("SELECT * FROM sources")
         assert sources[0]["source_reliability"] == "A"
@@ -109,7 +116,9 @@ class TestCaseDatabase:
                 ("DNA sample", "physical", "processed"),
             )
             cursor.execute(
-                """INSERT INTO hypothesis_evidence_scores (hypothesis_id, evidence_id, consistency, diagnostic_weight)
+                """INSERT INTO hypothesis_evidence_scores
+                   (hypothesis_id, evidence_id, consistency,
+                    diagnostic_weight)
                    VALUES (?, ?, ?, ?)""",
                 (1, 1, "C", "H"),
             )
@@ -150,9 +159,16 @@ class TestCaseDatabase:
         """Test forensic technology gap analysis fields on evidence_items."""
         with db.transaction() as cursor:
             cursor.execute(
-                """INSERT INTO evidence_items (name, evidence_type, status, original_testing, contemporary_testing_available, resubmission_status)
+                """INSERT INTO evidence_items
+                   (name, evidence_type, status, original_testing,
+                    contemporary_testing_available,
+                    resubmission_status)
                    VALUES (?, ?, ?, ?, ?, ?)""",
-                ("Blood sample", "physical", "known", "ABO typing only", "STR DNA profiling", "recommended"),
+                (
+                    "Blood sample", "physical", "known",
+                    "ABO typing only", "STR DNA profiling",
+                    "recommended",
+                ),
             )
         items = db.fetchall("SELECT * FROM evidence_items")
         assert items[0]["original_testing"] == "ABO typing only"

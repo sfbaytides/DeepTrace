@@ -36,21 +36,29 @@ def _open_case_db(case: str) -> CaseDatabase:
 def add(
     description: Annotated[str, typer.Argument(help="Hypothesis description")],
     case: Annotated[str, typer.Option(help="Case slug")] = "",
-    tier: Annotated[str, typer.Option(help="Tier: most-probable, plausible, less-likely, unlikely")] = "plausible",
+    tier: Annotated[
+        str,
+        typer.Option(help="Tier: most-probable, plausible, less-likely, unlikely"),
+    ] = "plausible",
     supporting: Annotated[str | None, typer.Option(help="Supporting evidence")] = None,
     contradicting: Annotated[str | None, typer.Option(help="Contradicting evidence")] = None,
     questions: Annotated[str | None, typer.Option(help="Open questions")] = None,
 ) -> None:
     """Add a new hypothesis."""
     if tier not in VALID_TIERS:
-        err_console.print(f"[bold red]Error:[/] Invalid tier '{tier}'. Must be one of: {', '.join(VALID_TIERS)}")
+        valid = ", ".join(VALID_TIERS)
+        err_console.print(
+            f"[bold red]Error:[/] Invalid tier '{tier}'. Must be one of: {valid}"
+        )
         raise typer.Exit(1)
 
     db = _open_case_db(case)
     try:
         with db.transaction() as cursor:
             cursor.execute(
-                """INSERT INTO hypotheses (description, tier, supporting_evidence, contradicting_evidence, open_questions)
+                """INSERT INTO hypotheses
+                   (description, tier, supporting_evidence,
+                    contradicting_evidence, open_questions)
                    VALUES (?, ?, ?, ?, ?)""",
                 (description, tier, supporting, contradicting, questions),
             )

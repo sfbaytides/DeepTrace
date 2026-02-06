@@ -36,14 +36,22 @@ def _open_case_db(case: str) -> CaseDatabase:
 def add(
     name: Annotated[str, typer.Argument(help="Evidence item name")],
     case: Annotated[str, typer.Option(help="Case slug")] = "",
-    type: Annotated[str, typer.Option(help="Evidence type: physical, digital, circumstantial")] = "physical",
-    status: Annotated[str, typer.Option(help="Status: known, processed, pending, inconclusive, missing")] = "known",
+    type: Annotated[
+        str, typer.Option(help="Evidence type: physical, digital, circumstantial")
+    ] = "physical",
+    status: Annotated[
+        str,
+        typer.Option(help="Status: known, processed, pending, inconclusive, missing"),
+    ] = "known",
     description: Annotated[str | None, typer.Option(help="Description")] = None,
     source_id: Annotated[int | None, typer.Option(help="Source ID to link")] = None,
 ) -> None:
     """Add an evidence item."""
     if status not in VALID_STATUSES:
-        err_console.print(f"[bold red]Error:[/] Invalid status. Must be one of: {', '.join(VALID_STATUSES)}")
+        valid = ", ".join(VALID_STATUSES)
+        err_console.print(
+            f"[bold red]Error:[/] Invalid status. Must be one of: {valid}"
+        )
         raise typer.Exit(1)
 
     db = _open_case_db(case)

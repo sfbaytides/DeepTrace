@@ -59,11 +59,19 @@ class TestSuspectPoolShow:
     def test_show_pools(self, runner, case_with_db):
         runner.invoke(
             app,
-            ["suspects", "add", "--case", case_with_db, "--category", "Pool A", "--description", "Desc A"],
+            [
+                "suspects", "add", "--case", case_with_db,
+                "--category", "Pool A",
+                "--description", "Desc A",
+            ],
         )
         runner.invoke(
             app,
-            ["suspects", "add", "--case", case_with_db, "--category", "Pool B", "--description", "Desc B"],
+            [
+                "suspects", "add", "--case", case_with_db,
+                "--category", "Pool B",
+                "--description", "Desc B",
+            ],
         )
         result = runner.invoke(app, ["suspects", "show", "--case", case_with_db])
         assert "Pool A" in result.output
