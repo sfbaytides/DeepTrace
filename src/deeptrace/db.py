@@ -257,6 +257,11 @@ class CaseDatabase:
         return self.open()
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        if self.conn:
+            if exc_type is None:
+                self.conn.commit()
+            else:
+                self.conn.rollback()
         self.close()
 
     def initialize_schema(self) -> None:
