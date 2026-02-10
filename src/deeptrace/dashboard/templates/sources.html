@@ -1,138 +1,281 @@
 <div class="section-header">
   <h1 class="section-title">Sources</h1>
-  <button class="btn btn-primary" aria-expanded="false" aria-controls="add-source-form" onclick="var f=document.getElementById('add-source-form'); var show=f.style.display==='none'; f.style.display=show?'block':'none'; this.setAttribute('aria-expanded', show)">+ Add Source</button>
+  <button class="btn btn-primary" aria-expanded="false" aria-controls="add-source-form" onclick="toggleAddForm()">+ Add Source</button>
 </div>
 
 <div id="add-source-form" class="add-form-container" style="display:none">
-  <form class="add-form" hx-post="/sources" hx-target="#main-content" hx-swap="innerHTML">
+  <div class="modern-card">
+    <h3 style="margin:0 0 20px 0;font-size:18px;color:var(--text-primary)">Add New Source</h3>
 
-    <!-- URL Fetch Row -->
-    <div class="form-row" style="align-items:flex-end">
-      <div class="form-group" style="flex:1">
-        <label for="source-url">URL <span style="color:var(--text-dim);font-weight:normal">(paste and click Fetch to auto-fill)</span></label>
-        <input type="text" name="url" id="source-url" placeholder="https://...">
-      </div>
-      <div class="form-group" style="max-width:100px">
-        <button type="button" class="btn btn-primary" onclick="fetchSourceUrl()" id="fetch-btn">Fetch</button>
-      </div>
-    </div>
+    <form class="add-form" hx-post="/sources" hx-target="#main-content" hx-swap="innerHTML">
 
-    <!-- Fetch status message -->
-    <div id="fetch-status" style="display:none;padding:8px 12px;border-radius:6px;margin-bottom:12px;font-size:13px"></div>
+      <!-- Step 1: URL Import (Prominent) -->
+      <div class="import-section" style="background:linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.08) 100%);padding:20px;border-radius:8px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-blue)">
+            <path d="M10 2L10 18M10 2L4 8M10 2L16 8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h4 style="margin:0;font-size:14px;font-weight:600;color:var(--text-primary)">Quick Import from URL</h4>
+        </div>
+        <p style="margin:0 0 12px 0;font-size:13px;color:var(--text-secondary)">Paste any URL and we'll automatically extract the content and metadata</p>
 
-    <!-- Paste fallback (shown on 403) -->
-    <div id="paste-fallback" class="form-row" style="display:none">
-      <div class="form-group">
-        <label for="paste-html">Paste Page HTML <span style="color:var(--text-dim);font-weight:normal">(Ctrl+U in your browser to view source)</span></label>
-        <textarea id="paste-html" rows="4" placeholder="Paste the page HTML source here..."></textarea>
-        <button type="button" class="btn btn-primary btn-sm" style="margin-top:6px" onclick="fetchFromPaste()">Extract from Paste</button>
-      </div>
-    </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" name="url" id="source-url" placeholder="https://example.com/article" style="flex:1;font-size:14px">
+          <button type="button" class="btn btn-primary" onclick="fetchSourceUrl()" id="fetch-btn" style="min-width:100px">
+            <span id="fetch-btn-text">Fetch</span>
+          </button>
+        </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="source-type">Source Type</label>
-        <select name="source_type" id="source-type">
-          <option value="news">News</option>
-          <option value="official">Official</option>
-          <option value="social">Social</option>
-          <option value="document">Document</option>
-          <option value="manual" selected>Manual</option>
-        </select>
+        <!-- Fetch status -->
+        <div id="fetch-status" style="display:none;margin-top:12px;padding:10px 12px;border-radius:6px;font-size:13px;line-height:1.4"></div>
+
+        <!-- Manual paste fallback (hidden by default) -->
+        <div id="paste-fallback" style="display:none;margin-top:12px">
+          <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px">
+            Can't fetch? Paste the page HTML (press Ctrl+U in browser to view source)
+          </label>
+          <textarea id="paste-html" rows="3" placeholder="<html>..." style="font-family:monospace;font-size:12px"></textarea>
+          <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="fetchFromPaste()">Extract from Paste</button>
+        </div>
       </div>
-      <div class="form-group" style="max-width:180px">
-        <label for="source-reliability-grade">Source Reliability</label>
-        <select name="source_reliability" id="source-reliability-grade">
-          <option value="">-- Not rated --</option>
-          <option value="A">A - Completely reliable</option>
-          <option value="B">B - Usually reliable</option>
-          <option value="C">C - Fairly reliable</option>
-          <option value="D">D - Not usually reliable</option>
-          <option value="E">E - Unreliable</option>
-          <option value="F">F - Cannot be judged</option>
-        </select>
+
+      <!-- Step 2: Source Details -->
+      <div id="manual-fields">
+
+        <!-- Source Type & Rating -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="form-group">
+            <label for="source-type">Source Type</label>
+            <select name="source_type" id="source-type">
+              <option value="news">📰 News Article</option>
+              <option value="official">🏛️ Official Document</option>
+              <option value="social">💬 Social Media</option>
+              <option value="document">📄 Document</option>
+              <option value="witness">👤 Witness Statement</option>
+              <option value="academic">🎓 Academic</option>
+              <option value="manual" selected>✍️ Manual Entry</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="source-reliability-grade">
+              Reliability
+              <span class="tooltip-trigger" style="color:var(--text-dim);cursor:help" title="NATO source reliability: A=Completely reliable, B=Usually reliable, C=Fairly reliable, D=Not usually reliable, E=Unreliable, F=Cannot judge">ⓘ</span>
+            </label>
+            <select name="source_reliability" id="source-reliability-grade">
+              <option value="">-- Not rated --</option>
+              <option value="A">A - Completely reliable</option>
+              <option value="B">B - Usually reliable</option>
+              <option value="C">C - Fairly reliable</option>
+              <option value="D">D - Not usually reliable</option>
+              <option value="E">E - Unreliable</option>
+              <option value="F">F - Cannot be judged</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="source-info-accuracy">
+              Information Accuracy
+              <span class="tooltip-trigger" style="color:var(--text-dim);cursor:help" title="Information credibility: 1=Confirmed, 2=Probably true, 3=Possibly true, 4=Doubtful, 5=Improbable, 6=Cannot judge">ⓘ</span>
+            </label>
+            <select name="information_accuracy" id="source-info-accuracy">
+              <option value="">-- Not rated --</option>
+              <option value="1">1 - Confirmed</option>
+              <option value="2">2 - Probably true</option>
+              <option value="3">3 - Possibly true</option>
+              <option value="4">4 - Doubtful</option>
+              <option value="5">5 - Improbable</option>
+              <option value="6">6 - Cannot be judged</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Computed Score -->
+        <div style="margin-bottom:16px;padding:10px 12px;background:rgba(59,130,246,0.05);border-radius:6px;display:none" id="score-display">
+          <span style="font-size:12px;color:var(--text-dim)">Computed Reliability Score:</span>
+          <span style="font-weight:600;margin-left:8px;color:var(--accent-blue)" id="score-value">0.50</span>
+          <input type="hidden" name="reliability_score" id="source-reliability" value="0.5">
+        </div>
+
+        <!-- Main Content -->
+        <div class="form-group" style="margin-bottom:16px">
+          <label for="source-raw-text">Source Content *</label>
+          <textarea name="raw_text" id="source-raw-text" rows="6" required placeholder="Paste or type the source text here..."></textarea>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px" id="char-count">0 characters</div>
+        </div>
+
+        <!-- Optional Notes -->
+        <div class="form-group" style="margin-bottom:16px">
+          <label for="source-notes">Notes (Optional)</label>
+          <input type="text" name="notes" id="source-notes" placeholder="Add any additional context or notes...">
+        </div>
       </div>
-      <div class="form-group" style="max-width:180px">
-        <label for="source-info-accuracy">Info Accuracy</label>
-        <select name="information_accuracy" id="source-info-accuracy">
-          <option value="">-- Not rated --</option>
-          <option value="1">1 - Confirmed</option>
-          <option value="2">2 - Probably true</option>
-          <option value="3">3 - Possibly true</option>
-          <option value="4">4 - Doubtful</option>
-          <option value="5">5 - Improbable</option>
-          <option value="6">6 - Cannot be judged</option>
-        </select>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;gap:8px;align-items:center;padding-top:16px;border-top:1px solid var(--border)">
+        <button type="submit" class="btn btn-primary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
+            <path d="M12 5L7 10L4 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Add Source
+        </button>
+        <button type="button" class="btn btn-ghost" onclick="toggleAddForm()">Cancel</button>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;color:var(--text-dim)">
+          <span style="color:var(--accent-blue)">Tip:</span> After adding, use AI to extract entities automatically
+        </span>
       </div>
-      <div class="form-group" style="max-width:100px">
-        <label for="source-reliability">Score</label>
-        <input type="number" name="reliability_score" id="source-reliability" value="0.5" min="0" max="1" step="0.01">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="source-raw-text">Text / Summary</label>
-        <textarea name="raw_text" id="source-raw-text" rows="4" required placeholder="Source text or summary..."></textarea>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="source-notes">Notes</label>
-        <input type="text" name="notes" id="source-notes" placeholder="Optional notes">
-      </div>
-    </div>
-    <div class="flex gap-8">
-      <button type="submit" class="btn btn-primary">Add Source</button>
-      <button type="button" class="btn btn-ghost" onclick="document.getElementById('add-source-form').style.display='none'">Cancel</button>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>
 
+<!-- Sources Table -->
 <div class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)">
+    <div style="font-size:13px;color:var(--text-dim)">
+      <strong style="color:var(--text-primary)">{{ sources|length }}</strong> source(s)
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="runGlobalReport()" id="global-report-btn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px">
+        <circle cx="7" cy="7" r="6"/>
+        <path d="M7 4v3l2 2" stroke-linecap="round"/>
+      </svg>
+      Run Global AI Report
+    </button>
+  </div>
+
   <table class="data-table">
     <thead>
       <tr>
         <th scope="col" class="id-col">#</th>
         <th scope="col" class="type-col">Type</th>
-        <th scope="col">Text</th>
-        <th scope="col" style="width:60px">Rating</th>
-        <th scope="col" style="width:60px">Score</th>
+        <th scope="col">Content Preview</th>
+        <th scope="col" style="width:80px">Rating</th>
+        <th scope="col" style="width:70px">Score</th>
         <th scope="col" style="width:100px">Date</th>
       </tr>
     </thead>
     <tbody>
       {% for s in sources %}
-      <tr hx-get="/sources/{{ s.id }}" hx-target="#detail-panel" hx-swap="innerHTML" tabindex="0">
+      <tr hx-get="/sources/{{ s.id }}" hx-target="#detail-panel" hx-swap="innerHTML" tabindex="0" class="hover-row">
         <td class="id-col">{{ s.id }}</td>
-        <td class="type-col"><span class="badge">{{ s.source_type }}</span></td>
-        <td class="text-truncate" style="max-width:400px">{{ s.raw_text[:100] }}{% if s.raw_text|length > 100 %}...{% endif %}</td>
+        <td class="type-col">
+          <span class="badge" style="font-size:11px">{{ s.source_type }}</span>
+        </td>
+        <td class="text-truncate" style="max-width:400px">
+          {{ s.raw_text[:120] }}{% if s.raw_text|length > 120 %}...{% endif %}
+        </td>
         <td>
           {% if s.source_reliability and s.information_accuracy %}
-            <span style="font-weight:600">{{ s.source_reliability }}{{ s.information_accuracy }}</span>
+            <span style="font-weight:600;font-size:13px">{{ s.source_reliability }}{{ s.information_accuracy }}</span>
           {% elif s.source_reliability %}
-            {{ s.source_reliability }}-
+            <span style="color:var(--text-dim)">{{ s.source_reliability }}-</span>
           {% else %}
             <span style="color:var(--text-dim)">--</span>
           {% endif %}
         </td>
-        <td>{{ "%.2f"|format(s.reliability_score) }}</td>
-        <td style="color:var(--text-dim);font-size:12px">{{ s.ingested_at[:10] if s.ingested_at else '' }}</td>
+        <td>
+          <span style="font-size:13px">{{ "%.2f"|format(s.reliability_score) }}</span>
+        </td>
+        <td style="color:var(--text-dim);font-size:12px">
+          {{ s.ingested_at[:10] if s.ingested_at else '' }}
+        </td>
       </tr>
       {% endfor %}
       {% if not sources %}
-      <tr><td colspan="6" style="color:var(--text-dim);text-align:center;padding:20px">No sources yet. Paste a URL above and click Fetch to import.</td></tr>
+      <tr>
+        <td colspan="6" style="text-align:center;padding:40px 20px">
+          <div style="color:var(--text-dim);font-size:14px">
+            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;opacity:0.3">
+              <path d="M12 8v8m0 0v8m0-8h8m-8 0H4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="28" cy="28" r="12"/>
+            </svg>
+            <p style="margin:0">No sources yet</p>
+            <p style="margin:4px 0 0 0;font-size:12px">Click "Add Source" above or paste a URL to get started</p>
+          </div>
+        </td>
+      </tr>
       {% endif %}
     </tbody>
   </table>
 </div>
 
+<!-- Global Report Modal -->
+<div id="global-report-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;padding:20px;overflow:auto" onclick="if(event.target===this) closeGlobalReport()">
+  <div class="modern-card" style="max-width:900px;margin:40px auto;max-height:calc(100vh - 80px);overflow:auto" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="margin:0;font-size:20px">Global Case Analysis Report</h3>
+      <button class="detail-close" onclick="closeGlobalReport()" style="position:static">&times;</button>
+    </div>
+    <div id="global-report-content">
+      <div style="text-align:center;padding:40px;color:var(--text-dim)">
+        <div class="spinner"></div>
+        <p style="margin-top:12px">Analyzing all case data with Carl AI...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.modern-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.hover-row:hover {
+  background: rgba(59,130,246,0.05);
+  cursor: pointer;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border: 3px solid rgba(59,130,246,0.2);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.tooltip-trigger:hover::after {
+  content: attr(title);
+  position: absolute;
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 10;
+  margin-left: 8px;
+}
+</style>
+
 <script>
+function toggleAddForm() {
+  var form = document.getElementById('add-source-form');
+  var isVisible = form.style.display !== 'none';
+  form.style.display = isVisible ? 'none' : 'block';
+
+  if (!isVisible) {
+    document.getElementById('source-url').focus();
+  }
+}
+
 function showFetchStatus(msg, isError) {
   var el = document.getElementById('fetch-status');
   el.textContent = msg;
   el.style.display = 'block';
-  el.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(59,130,246,0.15)';
-  el.style.color = isError ? 'var(--accent-red, #ef4444)' : 'var(--accent-blue, #3b82f6)';
+  el.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)';
+  el.style.color = isError ? 'var(--accent-red, #ef4444)' : 'var(--accent-green, #22c55e)';
+  el.style.border = isError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(34,197,94,0.3)';
 }
 
 function hideFetchStatus() {
@@ -141,42 +284,39 @@ function hideFetchStatus() {
 
 function fillFormFromFetch(data) {
   if (data.source_type) {
-    var sel = document.getElementById('source-type');
-    for (var i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].value === data.source_type) { sel.selectedIndex = i; break; }
-    }
+    document.getElementById('source-type').value = data.source_type;
   }
   if (data.source_reliability) {
-    var rel = document.getElementById('source-reliability-grade');
-    for (var i = 0; i < rel.options.length; i++) {
-      if (rel.options[i].value === data.source_reliability) { rel.selectedIndex = i; break; }
-    }
+    document.getElementById('source-reliability-grade').value = data.source_reliability;
   }
   if (data.information_accuracy) {
-    var acc = document.getElementById('source-info-accuracy');
-    for (var i = 0; i < acc.options.length; i++) {
-      if (acc.options[i].value === data.information_accuracy) { acc.selectedIndex = i; break; }
-    }
+    document.getElementById('source-info-accuracy').value = data.information_accuracy;
   }
   if (data.reliability_score !== undefined) {
     document.getElementById('source-reliability').value = data.reliability_score;
+    updateScoreDisplay();
   }
   if (data.raw_text) {
     document.getElementById('source-raw-text').value = data.raw_text;
+    updateCharCount();
   }
   if (data.notes) {
     document.getElementById('source-notes').value = data.notes;
   }
-  showFetchStatus('Fields auto-filled from URL. Review and click "Add Source" to save.', false);
+  showFetchStatus('✓ Content extracted successfully! Review and click "Add Source" to save.', false);
 }
 
 function fetchSourceUrl() {
   var url = document.getElementById('source-url').value.trim();
-  if (!url) { showFetchStatus('Please enter a URL first.', true); return; }
+  if (!url) {
+    showFetchStatus('Please enter a URL first', true);
+    return;
+  }
 
   var btn = document.getElementById('fetch-btn');
+  var btnText = document.getElementById('fetch-btn-text');
   btn.disabled = true;
-  btn.textContent = 'Fetching...';
+  btnText.textContent = 'Fetching...';
   hideFetchStatus();
   document.getElementById('paste-fallback').style.display = 'none';
 
@@ -188,12 +328,12 @@ function fetchSourceUrl() {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     btn.disabled = false;
-    btn.textContent = 'Fetch';
+    btnText.textContent = 'Fetch';
 
     if (data.error) {
-      showFetchStatus(data.error, true);
+      showFetchStatus('⚠ ' + data.error, true);
       if (data.needs_paste) {
-        document.getElementById('paste-fallback').style.display = 'flex';
+        document.getElementById('paste-fallback').style.display = 'block';
       }
       return;
     }
@@ -204,7 +344,7 @@ function fetchSourceUrl() {
   })
   .catch(function(err) {
     btn.disabled = false;
-    btn.textContent = 'Fetch';
+    btnText.textContent = 'Fetch';
     showFetchStatus('Network error: ' + err.message, true);
   });
 }
@@ -212,7 +352,10 @@ function fetchSourceUrl() {
 function fetchFromPaste() {
   var url = document.getElementById('source-url').value.trim();
   var html = document.getElementById('paste-html').value.trim();
-  if (!html) { showFetchStatus('Please paste the page HTML first.', true); return; }
+  if (!html) {
+    showFetchStatus('Please paste the HTML content first', true);
+    return;
+  }
 
   showFetchStatus('Extracting from pasted HTML...', false);
 
@@ -224,7 +367,7 @@ function fetchFromPaste() {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.error) {
-      showFetchStatus(data.error, true);
+      showFetchStatus('⚠ ' + data.error, true);
       return;
     }
     if (data.status === 'ok') {
@@ -237,7 +380,7 @@ function fetchFromPaste() {
   });
 }
 
-/* Auto-compute numeric score when Admiralty dropdowns change */
+// Auto-compute reliability score
 document.getElementById('source-reliability-grade').addEventListener('change', updateScore);
 document.getElementById('source-info-accuracy').addEventListener('change', updateScore);
 
@@ -246,9 +389,70 @@ function updateScore() {
   var accMap = { '1': 1.0, '2': 0.8, '3': 0.6, '4': 0.4, '5': 0.2, '6': 0.0 };
   var r = document.getElementById('source-reliability-grade').value;
   var a = document.getElementById('source-info-accuracy').value;
+
   if (r && a) {
-    var score = ((relMap[r] || 0.4) + (accMap[a] || 0.4)) / 2;
+    var score = ((relMap[r] || 0.5) + (accMap[a] || 0.5)) / 2;
     document.getElementById('source-reliability').value = score.toFixed(2);
+    updateScoreDisplay();
   }
 }
+
+function updateScoreDisplay() {
+  var score = document.getElementById('source-reliability').value;
+  var display = document.getElementById('score-display');
+  var value = document.getElementById('score-value');
+
+  if (score && score !== '0.5') {
+    display.style.display = 'block';
+    value.textContent = parseFloat(score).toFixed(2);
+  } else {
+    display.style.display = 'none';
+  }
+}
+
+// Character counter
+document.getElementById('source-raw-text').addEventListener('input', updateCharCount);
+
+function updateCharCount() {
+  var text = document.getElementById('source-raw-text').value;
+  var count = text.length;
+  document.getElementById('char-count').textContent = count.toLocaleString() + ' characters';
+}
+
+// Global Report
+function runGlobalReport() {
+  document.getElementById('global-report-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  fetch('/sources/ai/global-report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(html) {
+    var content = document.getElementById('global-report-content');
+    content.textContent = '';
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    content.appendChild(div);
+  })
+  .catch(function(err) {
+    var content = document.getElementById('global-report-content');
+    content.textContent = 'Error: ' + err.message;
+    content.style.color = 'var(--accent-red)';
+    content.style.padding = '20px';
+  });
+}
+
+function closeGlobalReport() {
+  document.getElementById('global-report-modal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeGlobalReport();
+  }
+});
 </script>

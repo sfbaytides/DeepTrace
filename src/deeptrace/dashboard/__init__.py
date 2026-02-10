@@ -58,6 +58,7 @@ def create_app(case_slug: str = "") -> Flask:
 
     # Register all blueprints (they'll check session for case)
     from deeptrace.dashboard.routes.ach import bp as ach_bp
+    from deeptrace.dashboard.routes.case_browser import bp as case_browser_bp
     from deeptrace.dashboard.routes.case_selector import bp as selector_bp
     from deeptrace.dashboard.routes.dashboard import bp as dashboard_bp
     from deeptrace.dashboard.routes.evidence import bp as evidence_bp
@@ -70,9 +71,10 @@ def create_app(case_slug: str = "") -> Flask:
     from deeptrace.dashboard.routes.suspects import bp as suspects_bp
     from deeptrace.dashboard.routes.timeline import bp as timeline_bp
 
-    # Case selector and import are always available
+    # Case selector, import, and case browser are always available
     app.register_blueprint(selector_bp, url_prefix="/cases")
     app.register_blueprint(import_bp, url_prefix="/import")
+    app.register_blueprint(case_browser_bp, url_prefix="/case-browser")
 
     # Main routes
     app.register_blueprint(dashboard_bp)

@@ -77,6 +77,13 @@
          {% if page == 'ach' %}aria-current="page"{% endif %}>
         <span class="nav-icon" aria-hidden="true">&#9638;</span> ACH Matrix
       </a>
+
+      <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px">
+        <a href="/case-browser/" class="nav-item {% if page == 'case_browser' %}active{% endif %}"
+           {% if page == 'case_browser' %}aria-current="page"{% endif %}>
+          <span class="nav-icon" aria-hidden="true">&#128193;</span> Case Browser
+        </a>
+      </div>
     </nav>
 
     <!-- Main content area -->

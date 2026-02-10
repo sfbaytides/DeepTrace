@@ -533,3 +533,199 @@ Analyze and respond in JSON:
 
     finally:
         db.close()
+
+
+# ---------------------------------------------------------------------------
+# Global Case Report: Analyze ALL case data at once
+# ---------------------------------------------------------------------------
+
+@bp.route("/ai/global-report", methods=["POST"])
+def global_report():
+    """Generate a comprehensive AI analysis of ALL case data."""
+    db = current_app.get_db()
+    try:
+        # Gather all case data
+        sources = [dict(r) for r in db.fetchall(
+            "SELECT id, source_type, raw_text, url FROM sources ORDER BY id")]
+        entities = [dict(r) for r in db.fetchall(
+            "SELECT id, name, entity_type, description FROM entities ORDER BY id")]
+        evidence = [dict(r) for r in db.fetchall(
+            "SELECT id, name, evidence_type, description, status FROM evidence_items ORDER BY id")]
+        events = [dict(r) for r in db.fetchall(
+            "SELECT id, description, timestamp_start FROM events ORDER BY timestamp_start")]
+        suspects = [dict(r) for r in db.fetchall(
+            "SELECT id, category, description FROM suspect_pools ORDER BY id")]
+        hypotheses = [dict(r) for r in db.fetchall(
+            "SELECT id, description, status FROM hypotheses ORDER BY id")]
+
+        # Build comprehensive context
+        sources_summary = f"{len(sources)} sources collected"
+        entities_summary = f"{len(entities)} entities identified"
+        evidence_summary = f"{len(evidence)} pieces of evidence"
+        events_summary = f"{len(events)} timeline events"
+        suspects_summary = f"{len(suspects)} suspect categories"
+        hypotheses_summary = f"{len(hypotheses)} hypotheses"
+
+        system = (
+            "You are a senior cold case investigator conducting a comprehensive case review. "
+            "Analyze all available data and provide strategic insights, identify gaps, "
+            "assess hypothesis strength, and recommend next investigative steps. "
+            "Be thorough, objective, and methodical."
+        )
+
+        prompt = f"""Conduct a comprehensive analysis of this cold case investigation.
+
+CASE OVERVIEW:
+- {sources_summary}
+- {entities_summary}
+- {evidence_summary}
+- {events_summary}
+- {suspects_summary}
+- {hypotheses_summary}
+
+SOURCES (first 10):
+{json.dumps(sources[:10], default=str, indent=2)}
+
+ENTITIES (first 20):
+{json.dumps(entities[:20], default=str, indent=2)}
+
+EVIDENCE (first 20):
+{json.dumps(evidence[:20], default=str, indent=2)}
+
+TIMELINE EVENTS (first 15):
+{json.dumps(events[:15], default=str, indent=2)}
+
+SUSPECTS:
+{json.dumps(suspects, default=str, indent=2)}
+
+HYPOTHESES:
+{json.dumps(hypotheses, default=str, indent=2)}
+
+Provide a comprehensive analysis covering:
+
+1. **Case Summary** (2-3 sentences): What do we know about this case?
+
+2. **Key Findings** (3-5 bullet points): Most significant discoveries
+
+3. **Evidence Assessment**:
+   - Strength of physical evidence
+   - Quality of witness testimony
+   - Documentary evidence reliability
+   - Gaps in evidence collection
+
+4. **Hypothesis Evaluation**:
+   - Which hypotheses are best supported by evidence?
+   - Which hypotheses have critical weaknesses?
+   - Are there alternative theories not yet considered?
+
+5. **Investigation Gaps** (prioritized list):
+   - Missing evidence or information
+   - Uninterviewed witnesses
+   - Unexplored leads
+   - Forensic opportunities
+
+6. **Recommended Next Steps** (top 5 actions):
+   - Specific investigative actions
+   - Evidence to seek
+   - People to interview
+   - Forensic tests to conduct
+
+7. **Red Flags & Concerns**:
+   - Inconsistencies in evidence
+   - Suspicious patterns
+   - Potential investigative biases
+
+Format your response in clear markdown with headers and bullet points."""
+
+        try:
+            response_text = _call_carl(prompt, system, max_tokens=4096)
+
+            # Record the global analysis
+            now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
+            with db.transaction() as cur:
+                cur.execute(
+                    "INSERT INTO ai_analyses (entity_type, entity_id, mode, prompt, "
+                    "response, model, success, error, created_at) "
+                    "VALUES ('case', NULL, 'global-report', ?, ?, ?, 1, NULL, ?)",
+                    (prompt[:2000], response_text[:50000], CARL_DEFAULT_MODEL, now),
+                )
+
+            # Return formatted HTML
+            html = f"""
+<div style="max-width:800px;margin:0 auto">
+    <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);padding:12px 16px;border-radius:6px;margin-bottom:20px">
+        <strong style="color:var(--accent-green)">✓ Analysis Complete</strong>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">
+            Analyzed {len(sources)} sources, {len(entities)} entities, {len(evidence)} evidence items, {len(events)} events
+        </div>
+    </div>
+
+    <div style="line-height:1.8;color:var(--text-primary)" class="markdown-content">
+        {_markdown_to_html(response_text)}
+    </div>
+
+    <div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--border);text-align:center">
+        <button class="btn btn-ghost btn-sm" onclick="closeGlobalReport()">Close Report</button>
+    </div>
+</div>
+"""
+            return html
+
+        except requests.exceptions.Timeout:
+            return '<div style="color:var(--accent-red);padding:20px">Carl AI request timed out. The model may be loading.</div>'
+        except requests.exceptions.RequestException as e:
+            return f'<div style="color:var(--accent-red);padding:20px">Carl AI request failed: {e}</div>'
+        except Exception as e:
+            return f'<div style="color:var(--accent-red);padding:20px">Analysis failed: {e}</div>'
+
+    finally:
+        db.close()
+
+
+def _markdown_to_html(text: str) -> str:
+    """Simple markdown to HTML converter for reports."""
+    import re
+
+    # Escape HTML
+    text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+    # Headers
+    text = re.sub(r'^### (.+)$', r'<h4 style="margin:20px 0 10px 0;font-size:15px;font-weight:600">\1</h4>', text, flags=re.MULTILINE)
+    text = re.sub(r'^## (.+)$', r'<h3 style="margin:24px 0 12px 0;font-size:17px;font-weight:600">\1</h3>', text, flags=re.MULTILINE)
+    text = re.sub(r'^# (.+)$', r'<h2 style="margin:28px 0 14px 0;font-size:20px;font-weight:600">\1</h2>', text, flags=re.MULTILINE)
+
+    # Bold and italic
+    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
+
+    # Lists
+    lines = text.split('\n')
+    in_list = False
+    result = []
+
+    for line in lines:
+        if line.strip().startswith('- ') or line.strip().startswith('* '):
+            if not in_list:
+                result.append('<ul style="margin:8px 0;padding-left:24px">')
+                in_list = True
+            item = line.strip()[2:]
+            result.append(f'<li style="margin:4px 0">{item}</li>')
+        elif line.strip().startswith(tuple(f'{i}. ' for i in range(1, 10))):
+            if not in_list:
+                result.append('<ol style="margin:8px 0;padding-left:24px">')
+                in_list = True
+            item = line.strip().split('. ', 1)[1] if '. ' in line else line.strip()
+            result.append(f'<li style="margin:4px 0">{item}</li>')
+        else:
+            if in_list:
+                result.append('</ul>' if result[-1].startswith('<li') and '<ul' in ''.join(result[-10:]) else '</ol>')
+                in_list = False
+            if line.strip():
+                result.append(f'<p style="margin:8px 0">{line}</p>')
+            else:
+                result.append('<br>')
+
+    if in_list:
+        result.append('</ul>')
+
+    return '\n'.join(result)
