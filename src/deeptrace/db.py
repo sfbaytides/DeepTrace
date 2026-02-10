@@ -287,3 +287,88 @@ class CaseDatabase:
 
     def fetchall(self, sql: str, params: tuple = ()) -> list[sqlite3.Row]:
         return self.conn.execute(sql, params).fetchall()
+
+
+# ---------------------------------------------------------------------------
+# Convenience functions used by the web dashboard import routes.
+# These operate on the per-case SQLite databases managed by state.py.
+# ---------------------------------------------------------------------------
+
+def get_db_path(case_id: str) -> Path:
+    """Return the database path for *case_id* (slug)."""
+    from deeptrace.state import CASES_DIR
+
+    return CASES_DIR / case_id / "case.db"
+
+
+def create_case(*, case_id: str, title: str, summary: str = "") -> str:
+    """Create a new case directory + database and return the slug."""
+    from deeptrace.state import CASES_DIR
+
+    case_dir = CASES_DIR / case_id
+    case_dir.mkdir(parents=True, exist_ok=True)
+
+    db = CaseDatabase(case_dir / "case.db")
+    with db:
+        db.initialize_schema()
+        db.execute(
+            "INSERT INTO sources (raw_text, source_type, notes) VALUES (?, ?, ?)",
+            (summary, "case_metadata", title),
+        )
+    return case_id
+
+
+def create_source(
+    *,
+    case_id: str,
+    source_type: str,
+    description: str,
+    url: str | None = None,
+    source_reliability: str | None = None,
+    information_credibility: str | None = None,
+) -> int:
+    """Insert a source record and return its id."""
+    db = CaseDatabase(get_db_path(case_id))
+    with db:
+        cur = db.execute(
+            "INSERT INTO sources (raw_text, source_type, url, source_reliability, information_accuracy) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (description, source_type, url, source_reliability, information_credibility),
+        )
+        return cur.lastrowid
+
+
+def create_evidence_item(
+    *,
+    case_id: str,
+    item_type: str,
+    description: str,
+    source_id: int | None = None,
+    content: str = "",
+) -> int:
+    """Insert an evidence item and return its id."""
+    db = CaseDatabase(get_db_path(case_id))
+    with db:
+        cur = db.execute(
+            "INSERT INTO evidence_items (name, evidence_type, description, source_id) "
+            "VALUES (?, ?, ?, ?)",
+            (description[:120], item_type, content or description, source_id),
+        )
+        return cur.lastrowid
+
+
+def create_timeline_event(
+    *,
+    case_id: str,
+    event_date: str,
+    description: str,
+    event_type: str = "general",
+) -> int:
+    """Insert a timeline event and return its id."""
+    db = CaseDatabase(get_db_path(case_id))
+    with db:
+        cur = db.execute(
+            "INSERT INTO events (timestamp_start, description, layer) VALUES (?, ?, ?)",
+            (event_date, description, event_type),
+        )
+        return cur.lastrowid

@@ -15,7 +15,7 @@ from deeptrace.db import (
     create_timeline_event,
     get_db_path,
 )
-from deeptrace.state import get_current_case
+from deeptrace.state import AppState
 
 bp = Blueprint("import_data", __name__)
 
