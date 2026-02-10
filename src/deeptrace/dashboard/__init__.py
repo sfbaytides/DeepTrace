@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from flask import Flask, session
+from flask import Flask, redirect, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import deeptrace.state as _state
@@ -84,5 +84,17 @@ def create_app(case_slug: str = "") -> Flask:
     app.register_blueprint(suspects_bp, url_prefix="/suspects")
     app.register_blueprint(network_bp, url_prefix="/network")
     app.register_blueprint(ach_bp, url_prefix="/ach")
+
+    # Global error handler: redirect to case selector when case is missing/stale
+    @app.errorhandler(FileNotFoundError)
+    @app.errorhandler(ValueError)
+    def handle_missing_case(error):
+        """Clear stale session and redirect to case selector."""
+        err_msg = str(error)
+        if "case" in err_msg.lower() or "not found" in err_msg.lower():
+            session.pop("current_case", None)
+            return redirect("/cases/")
+        # Re-raise non-case errors
+        raise error
 
     return app
