@@ -87,11 +87,13 @@ _DOMAIN_RELIABILITY: dict[str, tuple[str, str]] = {
     "bbc.com": ("B", "2"),        # MBFC: MOSTLY FACTUAL (2.1) but Ad Fontes: 44.73
     "bbc.co.uk": ("B", "2"),      # Same as bbc.com
     "abcnews.go.com": ("B", "2"), # MBFC: HIGH (1.1), HIGH credibility
-    "abc.net.au": ("B", "2"),     # Australian ABC — HIGH factual
+    "abc.net.au": ("B", "2"),     # MBFC: HIGH (1.0), HIGH credibility (Australia)
     "cbsnews.com": ("C", "3"),    # MBFC: MOSTLY FACTUAL (3.8), MEDIUM credibility
     "nbcnews.com": ("B", "2"),    # MBFC: HIGH (1.0)
     "pbs.org": ("B", "2"),        # MBFC: HIGH (1.0), HIGH credibility
     "npr.org": ("B", "2"),        # MBFC: HIGH (0.9), Ad Fontes: 43.10
+    "c-span.org": ("A", "2"),     # MBFC: VERY HIGH (0.0), nonpartisan primary source
+    "cnbc.com": ("C", "3"),       # MBFC: MOSTLY FACTUAL (2.2), HIGH credibility
 
     # Major newspapers — MBFC: HIGH factual
     "nytimes.com": ("B", "2"),    # MBFC: HIGH (1.4), HIGH credibility
@@ -112,6 +114,9 @@ _DOMAIN_RELIABILITY: dict[str, tuple[str, str]] = {
     "sfgate.com": ("C", "3"),         # SF Chronicle online
     "bostonglobe.com": ("B", "3"),    # Major metro daily
     "dallasnews.com": ("C", "3"),     # Major metro daily
+    "miamiherald.com": ("B", "3"),    # MBFC: HIGH factual, HIGH credibility
+    "seattletimes.com": ("B", "2"),   # MBFC: HIGH (1.0), HIGH credibility
+    "washingtontimes.com": ("D", "4"),  # MBFC: MIXED (6.4), LOW credibility
     "nypost.com": ("D", "4"),     # Same as newyorkpost.com
 
     # Cable news — MBFC: MOSTLY FACTUAL to LOW
@@ -130,19 +135,50 @@ _DOMAIN_RELIABILITY: dict[str, tuple[str, str]] = {
     "salon.com": ("D", "4"),      # MBFC: MIXED, LEFT
     "breitbart.com": ("E", "5"),  # MBFC: LOW factual, FAR RIGHT, Questionable
     "dailywire.com": ("D", "4"),  # MBFC: MIXED, RIGHT
+    "dailycaller.com": ("D", "4"),  # MBFC: MIXED (5.5), MEDIUM credibility
     "oann.com": ("E", "5"),       # MBFC: LOW factual, FAR RIGHT, Questionable
     "newsmax.com": ("D", "5"),    # MBFC: MIXED, RIGHT, Questionable
+    "theblaze.com": ("D", "5"),   # MBFC: MIXED (6.3), LOW credibility
+    "theepochtimes.com": ("C", "4"),  # MBFC: MOSTLY FACTUAL (3.9), MEDIUM credibility
     "slate.com": ("C", "3"),      # MBFC: MOSTLY FACTUAL, LEFT-CENTER
     "theatlantic.com": ("B", "3"),  # MBFC: HIGH factual, LEFT-CENTER
     "newyorker.com": ("B", "3"),  # MBFC: HIGH factual, LEFT-CENTER
     "time.com": ("B", "3"),       # MBFC: HIGH factual, LEFT-CENTER
+    "businessinsider.com": ("C", "3"),  # MBFC: MOSTLY FACTUAL (2.3), HIGH credibility
+    "motherjones.com": ("B", "3"),  # MBFC: HIGH (1.0), HIGH credibility
+    "thenation.com": ("B", "3"),  # MBFC: HIGH (1.9), HIGH credibility
+    "nationalreview.com": ("C", "3"),  # MBFC: MOSTLY FACTUAL (3.5), HIGH credibility
+    "reason.com": ("B", "3"),     # MBFC: HIGH (1.7), HIGH credibility
+    "jacobin.com": ("B", "3"),    # MBFC: HIGH (1.9), HIGH credibility
+    "dailydot.com": ("B", "3"),   # MBFC: HIGH (1.8), HIGH credibility
+    "rollingstone.com": ("B", "3"),  # MBFC: HIGH factual, HIGH credibility
+    "vanityfair.com": ("C", "3"),   # MBFC: MOSTLY FACTUAL (2.5), HIGH credibility
 
-    # UK tabloids / international
+    # Business / financial news
+    "economist.com": ("B", "2"),  # MBFC: HIGH (0.8), HIGH credibility
+    "ft.com": ("B", "2"),         # MBFC: HIGH (1.0), HIGH credibility
+    "bloomberg.com": ("C", "3"),  # MBFC: MOSTLY FACTUAL (2.2), HIGH credibility
+
+    # Tech news — MBFC: HIGH factual
+    "wired.com": ("B", "3"),      # MBFC: HIGH (1.0), HIGH credibility
+    "arstechnica.com": ("B", "3"),  # MBFC: HIGH factual, HIGH credibility
+    "theverge.com": ("B", "3"),   # MBFC: HIGH (1.1), HIGH credibility
+
+    # UK / international news outlets
     "dailymail.co.uk": ("E", "5"),  # MBFC: LOW (7.1), LOW credibility, Questionable
     "thesun.co.uk": ("D", "4"),   # MBFC: MIXED (5.9), MEDIUM credibility
     "independent.co.uk": ("D", "4"),  # MBFC: MIXED (5.8), MEDIUM credibility
     "telegraph.co.uk": ("C", "3"),    # MBFC: MOSTLY FACTUAL
     "sky.com": ("C", "3"),        # Sky News UK
+    "aljazeera.com": ("D", "4"),  # MBFC: MIXED (4.7), MEDIUM credibility
+    "france24.com": ("B", "2"),   # MBFC: HIGH (1.0), HIGH credibility
+    "spiegel.de": ("B", "2"),     # MBFC: HIGH factual, HIGH credibility (Der Spiegel)
+    # Canadian
+    "cbc.ca": ("B", "2"),         # MBFC: HIGH (1.0), HIGH credibility
+    "theglobeandmail.com": ("B", "2"),  # MBFC: HIGH (1.2), HIGH credibility
+    "thestar.com": ("B", "2"),    # MBFC: HIGH (1.0), HIGH credibility (Toronto Star)
+    # Australian
+    "smh.com.au": ("B", "2"),     # MBFC: HIGH (1.0), HIGH credibility (Sydney Morning Herald)
 
     # Investigative journalism — MBFC: HIGH factual
     "propublica.org": ("B", "2"), # MBFC: HIGH (0.8), Pulitzer-winning
