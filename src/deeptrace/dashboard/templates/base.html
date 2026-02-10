@@ -4,8 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DeepTrace — {{ case }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='themes.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="{{ url_for('static', filename='htmx.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='theme-toggle.js') }}"></script>
 </head>
 <body hx-boost="true">
 
@@ -17,6 +19,10 @@
     </div>
     <div class="topbar-right">
       <span class="topbar-stat">Case Dashboard</span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <span class="icon-light">☀️</span>
+        <span class="icon-dark">🌙</span>
+      </button>
     </div>
   </header>
 

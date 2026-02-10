@@ -167,7 +167,7 @@ body::after {
   letter-spacing: 0.5px;
 }
 
-.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-right { display: flex; align-items: center; gap: 16px; margin-right: 8px; }
 
 .topbar-stat {
   font-family: var(--font-mono);

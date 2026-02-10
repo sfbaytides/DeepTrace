@@ -8,8 +8,12 @@ import deeptrace.state as _state
 from deeptrace.db import CaseDatabase
 
 
-def create_app(case_slug: str) -> Flask:
-    """Create and configure the Flask dashboard app for a specific case."""
+def create_app(case_slug: str = "") -> Flask:
+    """Create and configure the Flask dashboard app.
+
+    If case_slug is empty, creates a case selector app.
+    Otherwise, creates a case-specific dashboard.
+    """
     app = Flask(
         __name__,
         template_folder=str(Path(__file__).parent / "templates"),
@@ -17,6 +21,14 @@ def create_app(case_slug: str) -> Flask:
     )
     app.config["SECRET_KEY"] = "deeptrace-local-only"
     app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB
+
+    # Case selector mode
+    if not case_slug:
+        from deeptrace.dashboard.routes.case_selector import bp as selector_bp
+        app.register_blueprint(selector_bp)
+        return app
+
+    # Case-specific mode
     app.config["CASE_SLUG"] = case_slug
 
     case_dir = _state.CASES_DIR / case_slug

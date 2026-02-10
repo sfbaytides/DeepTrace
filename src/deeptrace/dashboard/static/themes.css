@@ -1,0 +1,203 @@
+/* DeepTrace Dashboard — Theme System with Light/Dark Mode */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* ===== Light Theme (Default) ===== */
+:root {
+  /* Backgrounds */
+  --bg-void: #f8f9fa;
+  --bg-main: #ffffff;
+  --bg-panel: #f8f9fa;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1f3f5;
+  --bg-sidebar: #ffffff;
+  --bg-input: #ffffff;
+  --bg-hover: rgba(59, 130, 246, 0.08);
+
+  /* Borders */
+  --border: #e5e7eb;
+  --border-active: #d1d5db;
+  --border-accent: rgba(59, 130, 246, 0.3);
+  --grid-line: rgba(0, 0, 0, 0.03);
+
+  /* Text */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-dim: #9ca3af;
+  --text-bright: #111827;
+
+  /* Signal colors */
+  --cyan: #3b82f6;
+  --cyan-dim: rgba(59, 130, 246, 0.1);
+  --cyan-glow: rgba(59, 130, 246, 0.05);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.1);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.1);
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.1);
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139, 92, 246, 0.1);
+  --slate: #64748b;
+
+  /* Node colors */
+  --node-entity: #3b82f6;
+  --node-evidence: #ef4444;
+  --node-event: #10b981;
+  --node-hypothesis: #f59e0b;
+  --node-suspect: #8b5cf6;
+  --node-source: #64748b;
+
+  /* Status */
+  --status-known: #1f2937;
+  --status-processed: #10b981;
+  --status-pending: #f59e0b;
+  --status-inconclusive: #f97316;
+  --status-missing: #ef4444;
+
+  /* Tier */
+  --tier-most-probable: #10b981;
+  --tier-plausible: #f59e0b;
+  --tier-less-likely: #f97316;
+  --tier-unlikely: #ef4444;
+
+  /* Priority */
+  --priority-high: #ef4444;
+  --priority-medium: #f59e0b;
+  --priority-low: #64748b;
+
+  /* Typography */
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* Spacing */
+  --sidebar-w: 220px;
+  --topbar-h: 60px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Dark Theme ===== */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-void: #06070b;
+  --bg-main: #0a0c14;
+  --bg-panel: #0e1019;
+  --bg-surface: #12141f;
+  --bg-elevated: #171a28;
+  --bg-sidebar: #0c0e18;
+  --bg-input: #080a12;
+  --bg-hover: rgba(56, 189, 248, 0.04);
+
+  /* Borders */
+  --border: #1a1d2e;
+  --border-active: #2a3050;
+  --border-accent: rgba(56, 189, 248, 0.2);
+  --grid-line: rgba(56, 189, 248, 0.03);
+
+  /* Text */
+  --text-primary: #c8cad0;
+  --text-secondary: #6b7084;
+  --text-dim: #3d4058;
+  --text-bright: #e8eaf0;
+
+  /* Signal colors */
+  --cyan: #38bdf8;
+  --cyan-dim: rgba(56, 189, 248, 0.15);
+  --cyan-glow: rgba(56, 189, 248, 0.06);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.15);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167, 139, 250, 0.12);
+
+  /* Node colors */
+  --node-entity: #38bdf8;
+  --node-evidence: #ef4444;
+  --node-event: #22c55e;
+  --node-hypothesis: #f59e0b;
+  --node-suspect: #a78bfa;
+  --node-source: #64748b;
+
+  /* Status */
+  --status-known: #c8cad0;
+  --status-processed: #22c55e;
+  --status-pending: #f59e0b;
+  --status-inconclusive: #f97316;
+  --status-missing: #ef4444;
+
+  /* Tier */
+  --tier-most-probable: #22c55e;
+  --tier-plausible: #f59e0b;
+  --tier-less-likely: #f97316;
+  --tier-unlikely: #ef4444;
+
+  /* Shadows - darker for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Remove scanline effect for light mode, keep for dark mode */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme="dark"] body::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  opacity: 1;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+  background: var(--bg-hover);
+  transform: rotate(20deg);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Icon changes based on theme */
+.theme-toggle .icon-light { display: none; }
+.theme-toggle .icon-dark { display: inline; }
+
+[data-theme="dark"] .theme-toggle .icon-light { display: inline; }
+[data-theme="dark"] .theme-toggle .icon-dark { display: none; }
