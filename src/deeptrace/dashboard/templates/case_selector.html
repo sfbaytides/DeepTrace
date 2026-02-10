@@ -236,7 +236,10 @@
     <div class="selector-box">
       <div class="selector-header">
         <div class="selector-logo">DeepTrace</div>
-        <div class="selector-subtitle">Cold Case Investigation Platform</div>
+        <div class="selector-subtitle">AI-Powered Cold Case Investigation</div>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-top: 1rem; line-height: 1.6;">
+          Organize evidence, build timelines, analyze suspects, and uncover the truth with AI assistance.
+        </p>
       </div>
 
       {% if cases %}
@@ -253,38 +256,77 @@
       <div class="divider">
         <span>OR</span>
       </div>
+      {% else %}
+      <div style="background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(99,102,241,0.08) 100%); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 32px; margin-bottom: 0.75rem;">🔍</div>
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; color: var(--text-primary);">Import from Public Databases</h3>
+        <p style="margin: 0 0 1rem 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+          Start with real cases from FBI Most Wanted, NamUs missing persons, or other databases
+        </p>
+        <a href="/case-browser/" class="btn-create" style="display: inline-block; text-decoration: none; padding: 0.625rem 1.25rem;">
+          Browse Public Cases
+        </a>
+      </div>
+
+      <div class="divider">
+        <span>OR START FROM SCRATCH</span>
+      </div>
       {% endif %}
 
       <div class="new-case-form">
-        <div class="new-case-title">Create New Case</div>
-        <form method="POST" action="/case/create">
+        <div class="new-case-title">Start a New Investigation</div>
+        <form method="POST" action="/case/create" onsubmit="return sanitizeCaseName(event)">
           <div class="form-field">
-            <label for="case_name">Case Name *</label>
+            <label for="case_name" style="text-transform: none; font-family: var(--font-body); font-size: 14px; font-weight: 600;">Investigation Name</label>
             <input
               type="text"
               id="case_name"
               name="case_name"
               required
-              placeholder="e.g., jane-doe-2015"
-              pattern="[a-z0-9-]+"
-              title="Use lowercase letters, numbers, and hyphens only"
+              placeholder="Enter a name for your investigation"
+              style="font-family: var(--font-body);"
             >
+            <small style="font-size: 12px; color: var(--text-dim); margin-top: 0.25rem; display: block;">
+              This will help you identify this case later
+            </small>
           </div>
 
           <div class="form-field">
-            <label for="case_description">Description (Optional)</label>
+            <label for="case_description" style="text-transform: none; font-family: var(--font-body); font-size: 14px; font-weight: 600;">Brief Summary (Optional)</label>
             <textarea
               id="case_description"
               name="case_description"
-              placeholder="Brief description of the case..."
+              placeholder="What is this investigation about?"
+              style="font-family: var(--font-body);"
             ></textarea>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn-create">Create Case</button>
+            <button type="submit" class="btn-create" style="text-transform: none; letter-spacing: 0;">Start Investigation</button>
           </div>
         </form>
       </div>
+
+      <script>
+      function sanitizeCaseName(event) {
+        const input = document.getElementById('case_name');
+        // Auto-convert to valid slug format (lowercase, hyphens)
+        let value = input.value.toLowerCase().trim();
+        value = value.replace(/[^a-z0-9\s-]/g, ''); // Remove invalid chars
+        value = value.replace(/\s+/g, '-'); // Spaces to hyphens
+        value = value.replace(/-+/g, '-'); // Multiple hyphens to single
+        value = value.replace(/^-+|-+$/g, ''); // Trim hyphens
+
+        if (!value) {
+          alert('Please enter an investigation name');
+          event.preventDefault();
+          return false;
+        }
+
+        input.value = value;
+        return true;
+      }
+      </script>
 
       {% if not cases %}
       <div class="empty-state">
