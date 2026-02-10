@@ -1,11 +1,16 @@
 """File attachments CRUD routes."""
 
 import base64
+import hashlib
 import io
 import mimetypes
+import os
 from datetime import UTC, datetime
+from pathlib import Path
 
 from flask import Blueprint, Response, current_app, render_template, request
+
+import deeptrace.state as _state
 
 bp = Blueprint("files", __name__)
 
@@ -30,6 +35,12 @@ ENTITY_NAME_QUERIES = {
     "hypothesis": ("SELECT description FROM hypotheses WHERE id = ?", "description"),
     "suspect": ("SELECT category FROM suspect_pools WHERE id = ?", "category"),
 }
+
+
+def _get_case_dir() -> Path:
+    """Get the current case directory."""
+    slug = current_app.get_current_case_slug()
+    return _state.CASES_DIR / slug
 
 
 def _humanize_size(size_bytes: int) -> str:
@@ -261,14 +272,46 @@ def upload():
 
         mime = f.content_type or mimetypes.guess_type(f.filename)[0] or "application/octet-stream"
         description = request.form.get("description") or None
-        thumbnail = _generate_thumbnail(file_bytes, mime)
+        source_url = request.form.get("source_url") or None
+        sha256 = hashlib.sha256(file_bytes).hexdigest()
 
+        case_dir = _get_case_dir()
+        attach_dir = case_dir / "attachments"
+        attach_dir.mkdir(parents=True, exist_ok=True)
+
+        # INSERT with placeholder path to get the row ID
         with db.transaction() as cur:
             cur.execute(
                 "INSERT INTO attachments "
-                "(filename, mime_type, file_size, description, data, thumbnail) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (f.filename, mime, file_size, description, file_bytes, thumbnail),
+                "(filename, mime_type, file_size, file_path, sha256, "
+                "description, source_url) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (f.filename, mime, file_size, "__placeholder__", sha256,
+                 description, source_url),
+            )
+            row_id = cur.lastrowid
+
+        # Write file to disk with ID prefix
+        disk_name = f"{row_id}_{f.filename}"
+        rel_path = f"attachments/{disk_name}"
+        (attach_dir / disk_name).write_bytes(file_bytes)
+
+        # Generate and write thumbnail
+        thumb_bytes = _generate_thumbnail(file_bytes, mime)
+        thumb_rel = None
+        if thumb_bytes:
+            thumbs_dir = attach_dir / "thumbs"
+            thumbs_dir.mkdir(parents=True, exist_ok=True)
+            thumb_name = f"{row_id}_{os.path.splitext(f.filename)[0]}.png"
+            thumb_rel = f"attachments/thumbs/{thumb_name}"
+            (thumbs_dir / thumb_name).write_bytes(thumb_bytes)
+
+        # UPDATE with real paths
+        with db.transaction() as cur:
+            cur.execute(
+                "UPDATE attachments SET file_path = ?, thumbnail_path = ? "
+                "WHERE id = ?",
+                (rel_path, thumb_rel, row_id),
             )
 
         rows = db.fetchall(
@@ -319,15 +362,21 @@ def download(file_id):
     db = current_app.get_db()
     try:
         row = db.fetchone(
-            "SELECT data, mime_type, filename FROM attachments WHERE id = ?",
+            "SELECT file_path, mime_type, filename FROM attachments WHERE id = ?",
             (file_id,),
         )
         if not row:
             return "Not found", 404
 
+        case_dir = _get_case_dir()
+        disk_path = case_dir / row["file_path"]
+        if not disk_path.exists():
+            return "File missing from disk", 404
+
+        file_bytes = disk_path.read_bytes()
         disposition = "attachment" if request.args.get("dl") == "1" else "inline"
         return Response(
-            row["data"],
+            file_bytes,
             mimetype=row["mime_type"],
             headers={
                 "Content-Disposition": f'{disposition}; filename="{row["filename"]}"',
@@ -343,18 +392,21 @@ def thumbnail(file_id):
     db = current_app.get_db()
     try:
         row = db.fetchone(
-            "SELECT thumbnail, mime_type FROM attachments WHERE id = ?",
+            "SELECT thumbnail_path, mime_type FROM attachments WHERE id = ?",
             (file_id,),
         )
         if not row:
             return "Not found", 404
 
-        if row["thumbnail"]:
-            return Response(
-                row["thumbnail"],
-                mimetype="image/png",
-                headers={"Cache-Control": "private, max-age=3600"},
-            )
+        if row["thumbnail_path"]:
+            case_dir = _get_case_dir()
+            thumb_disk = case_dir / row["thumbnail_path"]
+            if thumb_disk.exists():
+                return Response(
+                    thumb_disk.read_bytes(),
+                    mimetype="image/png",
+                    headers={"Cache-Control": "private, max-age=3600"},
+                )
 
         svg = _placeholder_svg(row["mime_type"])
         return Response(svg, mimetype="image/svg+xml")
@@ -366,9 +418,63 @@ def thumbnail(file_id):
 def delete(file_id):
     db = current_app.get_db()
     try:
+        row = db.fetchone(
+            "SELECT file_path, thumbnail_path FROM attachments WHERE id = ?",
+            (file_id,),
+        )
+        if not row:
+            return "Not found", 404
+
+        case_dir = _get_case_dir()
+
+        # Remove disk files
+        if row["file_path"]:
+            fp = case_dir / row["file_path"]
+            if fp.exists():
+                fp.unlink()
+        if row["thumbnail_path"]:
+            tp = case_dir / row["thumbnail_path"]
+            if tp.exists():
+                tp.unlink()
+
         with db.transaction() as cur:
             cur.execute("DELETE FROM attachments WHERE id = ?", (file_id,))
         return ""
+    finally:
+        db.close()
+
+
+@bp.route("/<int:file_id>/verify", methods=["POST"])
+def verify(file_id):
+    """Verify file integrity by comparing current SHA-256 to stored hash."""
+    db = current_app.get_db()
+    try:
+        row = db.fetchone(
+            "SELECT file_path, sha256, filename FROM attachments WHERE id = ?",
+            (file_id,),
+        )
+        if not row:
+            return "Not found", 404
+
+        case_dir = _get_case_dir()
+        file_on_disk = case_dir / row["file_path"]
+
+        if not file_on_disk.exists():
+            status, message = "missing", "File missing from disk"
+        else:
+            current_hash = hashlib.sha256(file_on_disk.read_bytes()).hexdigest()
+            if current_hash == row["sha256"]:
+                status = "verified"
+                message = f"Integrity intact. SHA-256: {current_hash}"
+            else:
+                status = "tampered"
+                message = (f"HASH MISMATCH — file may be tampered. "
+                           f"Expected: {row['sha256']} Got: {current_hash}")
+
+        return (
+            f'<div class="verify-result verify-{status}">'
+            f'<strong>{row["filename"]}</strong>: {message}</div>'
+        )
     finally:
         db.close()
 
@@ -413,14 +519,20 @@ def analyze(file_id):
     db = current_app.get_db()
     try:
         row = db.fetchone(
-            "SELECT data, mime_type, filename FROM attachments WHERE id = ?",
+            "SELECT file_path, mime_type, filename FROM attachments WHERE id = ?",
             (file_id,),
         )
         if not row:
             return "Not found", 404
 
+        case_dir = _get_case_dir()
+        disk_path = case_dir / row["file_path"]
+        if not disk_path.exists():
+            return "File missing from disk", 404
+
+        file_bytes = disk_path.read_bytes()
         analysis = _run_ai_analysis(
-            row["data"], row["mime_type"], row["filename"]
+            file_bytes, row["mime_type"], row["filename"]
         )
         now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
 

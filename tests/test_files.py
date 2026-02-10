@@ -43,37 +43,45 @@ class TestAttachmentsSchema:
     def test_insert_attachment(self, db):
         with db.transaction() as cur:
             cur.execute(
-                "INSERT INTO attachments (filename, mime_type, file_size, data) "
-                "VALUES (?, ?, ?, ?)",
-                ("photo.jpg", "image/jpeg", 1024, b"\xff\xd8\xff\xe0"),
+                "INSERT INTO attachments (filename, mime_type, file_size, file_path, sha256) "
+                "VALUES (?, ?, ?, ?, ?)",
+                ("photo.jpg", "image/jpeg", 1024,
+                 "attachments/1_photo.jpg", "abc123"),
             )
         row = db.fetchone("SELECT * FROM attachments WHERE id = 1")
         assert row is not None
         assert row["filename"] == "photo.jpg"
         assert row["mime_type"] == "image/jpeg"
         assert row["file_size"] == 1024
-        assert row["data"] == b"\xff\xd8\xff\xe0"
+        assert row["file_path"] == "attachments/1_photo.jpg"
+        assert row["sha256"] == "abc123"
 
     def test_insert_attachment_with_optional_fields(self, db):
         with db.transaction() as cur:
             cur.execute(
                 "INSERT INTO attachments "
-                "(filename, mime_type, file_size, data, description, thumbnail) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                ("doc.pdf", "application/pdf", 2048, b"%PDF", "A report", b"\x89PNG"),
+                "(filename, mime_type, file_size, file_path, sha256, "
+                "description, thumbnail_path, source_url) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                ("doc.pdf", "application/pdf", 2048,
+                 "attachments/1_doc.pdf", "def456",
+                 "A report", "attachments/thumbs/1_doc.png",
+                 "https://example.com/doc.pdf"),
             )
         row = db.fetchone("SELECT * FROM attachments WHERE id = 1")
         assert row["description"] == "A report"
-        assert row["thumbnail"] == b"\x89PNG"
+        assert row["thumbnail_path"] == "attachments/thumbs/1_doc.png"
+        assert row["source_url"] == "https://example.com/doc.pdf"
         assert row["ai_analysis"] is None
         assert row["ai_analyzed_at"] is None
 
     def test_attachment_link_insert(self, db):
         with db.transaction() as cur:
             cur.execute(
-                "INSERT INTO attachments (filename, mime_type, file_size, data) "
-                "VALUES (?, ?, ?, ?)",
-                ("photo.jpg", "image/jpeg", 1024, b"\xff\xd8"),
+                "INSERT INTO attachments (filename, mime_type, file_size, file_path, sha256) "
+                "VALUES (?, ?, ?, ?, ?)",
+                ("photo.jpg", "image/jpeg", 1024,
+                 "attachments/1_photo.jpg", "abc123"),
             )
             cur.execute(
                 "INSERT INTO evidence_items (name, evidence_type, status) "
@@ -93,9 +101,10 @@ class TestAttachmentsSchema:
     def test_attachment_link_check_constraint(self, db):
         with db.transaction() as cur:
             cur.execute(
-                "INSERT INTO attachments (filename, mime_type, file_size, data) "
-                "VALUES (?, ?, ?, ?)",
-                ("photo.jpg", "image/jpeg", 1024, b"\xff\xd8"),
+                "INSERT INTO attachments (filename, mime_type, file_size, file_path, sha256) "
+                "VALUES (?, ?, ?, ?, ?)",
+                ("photo.jpg", "image/jpeg", 1024,
+                 "attachments/1_photo.jpg", "abc123"),
             )
         with pytest.raises(sqlite3.IntegrityError):
             with db.transaction() as cur:
@@ -108,9 +117,10 @@ class TestAttachmentsSchema:
     def test_attachment_link_unique_constraint(self, db):
         with db.transaction() as cur:
             cur.execute(
-                "INSERT INTO attachments (filename, mime_type, file_size, data) "
-                "VALUES (?, ?, ?, ?)",
-                ("photo.jpg", "image/jpeg", 1024, b"\xff\xd8"),
+                "INSERT INTO attachments (filename, mime_type, file_size, file_path, sha256) "
+                "VALUES (?, ?, ?, ?, ?)",
+                ("photo.jpg", "image/jpeg", 1024,
+                 "attachments/1_photo.jpg", "abc123"),
             )
             cur.execute(
                 "INSERT INTO evidence_items (name, evidence_type, status) "
@@ -136,9 +146,10 @@ class TestAttachmentsSchema:
         """Deleting an attachment should cascade-delete its links."""
         with db.transaction() as cur:
             cur.execute(
-                "INSERT INTO attachments (filename, mime_type, file_size, data) "
-                "VALUES (?, ?, ?, ?)",
-                ("photo.jpg", "image/jpeg", 1024, b"\xff\xd8"),
+                "INSERT INTO attachments (filename, mime_type, file_size, file_path, sha256) "
+                "VALUES (?, ?, ?, ?, ?)",
+                ("photo.jpg", "image/jpeg", 1024,
+                 "attachments/1_photo.jpg", "abc123"),
             )
             cur.execute(
                 "INSERT INTO evidence_items (name, evidence_type, status) "
@@ -182,6 +193,8 @@ class TestFilesRoute:
         _state.CASES_DIR = tmp_path
         case_dir = tmp_path / "test-case"
         case_dir.mkdir()
+        (case_dir / "attachments").mkdir()
+        (case_dir / "attachments" / "thumbs").mkdir()
         db = CaseDatabase(case_dir / "case.db")
         db.open()
         db.initialize_schema()
@@ -273,6 +286,7 @@ class TestFilesRoute:
 
     def test_link_and_unlink(self, client, app):
         from io import BytesIO
+        import deeptrace.state as _state
 
         # Upload a file
         client.post(
@@ -281,7 +295,9 @@ class TestFilesRoute:
             content_type="multipart/form-data",
         )
         # Create an evidence item to link to
-        db = app.get_db()
+        case_dir = _state.CASES_DIR / "test-case"
+        db = CaseDatabase(case_dir / "case.db")
+        db.open()
         try:
             with db.transaction() as cur:
                 cur.execute(
@@ -316,3 +332,104 @@ class TestFilesRoute:
             "/files/?type=image", headers={"HX-Request": "true"}
         )
         assert resp.status_code == 200
+
+    def test_upload_writes_to_disk(self, client, app):
+        """Upload should write file to attachments dir, not BLOB."""
+        from io import BytesIO
+        import hashlib
+        import deeptrace.state as _state
+
+        content = b"fake image data for disk test"
+        data = {
+            "file": (BytesIO(content), "disk_test.png"),
+            "description": "Disk storage test",
+        }
+        resp = client.post(
+            "/files/",
+            data=data,
+            content_type="multipart/form-data",
+            headers={"HX-Request": "true"},
+        )
+        assert resp.status_code == 200
+
+        case_dir = _state.CASES_DIR / "test-case"
+        db = CaseDatabase(case_dir / "case.db")
+        db.open()
+        try:
+            row = db.fetchone("SELECT file_path, sha256 FROM attachments WHERE id = 1")
+            assert row is not None
+            assert row["file_path"].startswith("attachments/")
+            assert row["sha256"] == hashlib.sha256(content).hexdigest()
+        finally:
+            db.close()
+
+    def test_download_from_disk(self, client):
+        """Download should serve file from disk."""
+        from io import BytesIO
+
+        content = b"hello world from disk"
+        client.post(
+            "/files/",
+            data={"file": (BytesIO(content), "test.txt")},
+            content_type="multipart/form-data",
+        )
+        resp = client.get("/files/1/download")
+        assert resp.status_code == 200
+        assert resp.data == content
+
+    def test_delete_removes_disk_file(self, client, app):
+        """Deleting an attachment should remove the file from disk."""
+        from io import BytesIO
+        import deeptrace.state as _state
+
+        content = b"delete me"
+        client.post(
+            "/files/",
+            data={"file": (BytesIO(content), "deletable.txt")},
+            content_type="multipart/form-data",
+        )
+
+        case_dir = _state.CASES_DIR / "test-case"
+        attach_dir = case_dir / "attachments"
+        # Verify file exists
+        files_before = list(attach_dir.glob("1_*"))
+        assert len(files_before) > 0
+
+        resp = client.delete("/files/1")
+        assert resp.status_code == 200
+
+        files_after = list(attach_dir.glob("1_*"))
+        assert len(files_after) == 0
+
+    def test_verify_integrity_passes(self, client):
+        """Verify route should confirm file integrity."""
+        from io import BytesIO
+
+        client.post(
+            "/files/",
+            data={"file": (BytesIO(b"integrity check"), "verify.txt")},
+            content_type="multipart/form-data",
+        )
+        resp = client.post("/files/1/verify")
+        assert resp.status_code == 200
+        assert b"intact" in resp.data.lower()
+
+    def test_verify_integrity_fails_on_tamper(self, client, app):
+        """Verify should detect tampered files."""
+        from io import BytesIO
+        import deeptrace.state as _state
+
+        client.post(
+            "/files/",
+            data={"file": (BytesIO(b"original"), "tamper.txt")},
+            content_type="multipart/form-data",
+        )
+
+        # Tamper with file on disk
+        case_dir = _state.CASES_DIR / "test-case"
+        tampered = list((case_dir / "attachments").glob("1_*"))[0]
+        tampered.write_bytes(b"tampered content")
+
+        resp = client.post("/files/1/verify")
+        assert resp.status_code == 200
+        assert b"mismatch" in resp.data.lower()
