@@ -14,7 +14,7 @@ def index():
         if request.headers.get("HX-Request"):
             return render_template("timeline.html", events=events)
         return render_template("base.html", page="timeline", events=events,
-                               case=current_app.config["CASE_SLUG"])
+                               case=current_app.get_current_case_slug())
     finally:
         db.close()
 

@@ -23,7 +23,7 @@ def index():
                                    tiers=VALID_TIERS)
         return render_template("base.html", page="hypotheses", by_tier=by_tier,
                                tiers=VALID_TIERS,
-                               case=current_app.config["CASE_SLUG"])
+                               case=current_app.get_current_case_slug())
     finally:
         db.close()
 

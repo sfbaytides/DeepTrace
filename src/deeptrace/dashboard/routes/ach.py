@@ -25,7 +25,7 @@ def index():
                                    evidence=evidence, matrix=matrix)
         return render_template("base.html", page="ach", hypotheses=hypotheses,
                                evidence=evidence, matrix=matrix,
-                               case=current_app.config["CASE_SLUG"])
+                               case=current_app.get_current_case_slug())
     finally:
         db.close()
 

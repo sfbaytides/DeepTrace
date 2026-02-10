@@ -14,7 +14,7 @@ def index():
         if request.headers.get("HX-Request"):
             return render_template("suspects.html", pools=pools)
         return render_template("base.html", page="suspects", pools=pools,
-                               case=current_app.config["CASE_SLUG"])
+                               case=current_app.get_current_case_slug())
     finally:
         db.close()
 

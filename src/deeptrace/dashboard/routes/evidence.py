@@ -27,7 +27,7 @@ def index():
         return render_template("base.html", page="evidence", items=items,
                                statuses=VALID_STATUSES,
                                active_status=status_filter,
-                               case=current_app.config["CASE_SLUG"])
+                               case=current_app.get_current_case_slug())
     finally:
         db.close()
 

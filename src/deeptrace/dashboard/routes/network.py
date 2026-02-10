@@ -223,7 +223,7 @@ def index():
     if request.headers.get("HX-Request"):
         return render_template("network.html")
     return render_template("base.html", page="network",
-                           case=current_app.config["CASE_SLUG"])
+                           case=current_app.get_current_case_slug())
 
 
 @bp.route("/graph")
