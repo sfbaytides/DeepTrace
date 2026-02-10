@@ -52,3 +52,259 @@
 	2026-02-10T04:44:59.6872452Z,Python Virtual Environment: antenv,,0
 	2026-02-10T04:44:59.7469826Z,Creating virtual environment...,,0
 	2026-02-10T04:44:59.8147994Z,Executing: /tmp/oryx/platforms/python/3.11.14/bin/python3.11 -m venv antenv --copies,,0
+	2026-02-10T04:45:25.5525686Z,Activating virtual environment...,,0
+	2026-02-10T04:45:25.5821812Z,Running pip install poetry...,,0
+	2026-02-10T04:45:27.8719414Z,Collecting poetry,,0
+	2026-02-10T04:45:27.9405995Z,  Using cached poetry-2.3.2-py3-none-any.whl.metadata (7.2 kB),,0
+	2026-02-10T04:45:28.2347052Z,Collecting build<2.0.0&comma;>=1.2.1 (from poetry),,0
+	2026-02-10T04:45:28.3085953Z,  Using cached build-1.4.0-py3-none-any.whl.metadata (5.8 kB),,0
+	2026-02-10T04:45:28.4428158Z,Collecting cachecontrol<0.15.0&comma;>=0.14.0 (from cachecontrol[filecache]<0.15.0&comma;>=0.14.0->poetry),,0
+	2026-02-10T04:45:29.3718095Z,  Using cached cachecontrol-0.14.4-py3-none-any.whl.metadata (3.1 kB),,0
+	2026-02-10T04:45:29.3907179Z,Collecting cleo<3.0.0&comma;>=2.1.0 (from poetry),,0
+	2026-02-10T04:45:29.4039100Z,  Using cached cleo-2.1.0-py3-none-any.whl.metadata (12 kB),,0
+	2026-02-10T04:45:29.4321025Z,Collecting dulwich<2&comma;>=0.25.0 (from poetry),,0
+	2026-02-10T04:45:29.4871503Z,  Using cached dulwich-1.0.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (5.4 kB),,0
+	2026-02-10T04:45:29.6451827Z,Collecting fastjsonschema<3.0.0&comma;>=2.18.0 (from poetry),,0
+	2026-02-10T04:45:29.6981113Z,  Using cached fastjsonschema-2.21.2-py3-none-any.whl.metadata (2.3 kB),,0
+	2026-02-10T04:45:29.9097647Z,Collecting findpython<0.8.0&comma;>=0.6.2 (from poetry),,0
+	2026-02-10T04:45:29.9379264Z,  Using cached findpython-0.7.1-py3-none-any.whl.metadata (5.4 kB),,0
+	2026-02-10T04:45:30.0815887Z,Collecting installer<0.8.0&comma;>=0.7.0 (from poetry),,0
+	2026-02-10T04:45:30.1317733Z,  Using cached installer-0.7.0-py3-none-any.whl.metadata (936 bytes),,0
+	2026-02-10T04:45:30.4612552Z,Collecting keyring<26.0.0&comma;>=25.1.0 (from poetry),,0
+	2026-02-10T04:45:30.5290365Z,  Using cached keyring-25.7.0-py3-none-any.whl.metadata (21 kB),,0
+	2026-02-10T04:45:30.8086731Z,Collecting packaging>=24.2 (from poetry),,0
+	2026-02-10T04:45:30.8986845Z,  Using cached packaging-26.0-py3-none-any.whl.metadata (3.3 kB),,0
+	2026-02-10T04:45:31.1946197Z,Collecting pbs-installer>=2025.6.10 (from pbs-installer[download&comma;install]>=2025.6.10->poetry),,0
+	2026-02-10T04:45:31.2406405Z,  Using cached pbs_installer-2026.2.3-py3-none-any.whl.metadata (990 bytes),,0
+	2026-02-10T04:45:31.4899245Z,Collecting pkginfo<2.0&comma;>=1.12 (from poetry),,0
+	2026-02-10T04:45:31.5284389Z,  Using cached pkginfo-1.12.1.2-py3-none-any.whl.metadata (13 kB),,0
+	2026-02-10T04:45:31.7167390Z,Collecting platformdirs<5&comma;>=3.0.0 (from poetry),,0
+	2026-02-10T04:45:31.7482528Z,  Using cached platformdirs-4.5.1-py3-none-any.whl.metadata (12 kB),,0
+	2026-02-10T04:45:31.9858977Z,Collecting poetry-core==2.3.1 (from poetry),,0
+	2026-02-10T04:45:32.0178038Z,  Using cached poetry_core-2.3.1-py3-none-any.whl.metadata (3.8 kB),,0
+	2026-02-10T04:45:32.1608203Z,Collecting pyproject-hooks<2.0.0&comma;>=1.0.0 (from poetry),,0
+	2026-02-10T04:45:32.2001680Z,  Using cached pyproject_hooks-1.2.0-py3-none-any.whl.metadata (1.3 kB),,0
+	2026-02-10T04:45:32.4532221Z,Collecting requests<3.0&comma;>=2.26 (from poetry),,0
+	2026-02-10T04:45:32.4731666Z,  Using cached requests-2.32.5-py3-none-any.whl.metadata (4.9 kB),,0
+	2026-02-10T04:45:32.6268016Z,Collecting requests-toolbelt<2.0.0&comma;>=1.0.0 (from poetry),,0
+	2026-02-10T04:45:32.6562012Z,  Using cached requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB),,0
+	2026-02-10T04:45:32.8291605Z,Collecting shellingham<2.0&comma;>=1.5 (from poetry),,0
+	2026-02-10T04:45:32.8485906Z,  Using cached shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB),,0
+	2026-02-10T04:45:33.0503190Z,Collecting tomlkit<1.0.0&comma;>=0.11.4 (from poetry),,0
+	2026-02-10T04:45:33.1159297Z,  Using cached tomlkit-0.14.0-py3-none-any.whl.metadata (2.8 kB),,0
+	2026-02-10T04:45:33.3952072Z,Collecting trove-classifiers>=2022.5.19 (from poetry),,0
+	2026-02-10T04:45:33.4252780Z,  Using cached trove_classifiers-2026.1.14.14-py3-none-any.whl.metadata (2.4 kB),,0
+	2026-02-10T04:45:33.9753033Z,Collecting virtualenv>=20.26.6 (from poetry),,0
+	2026-02-10T04:45:34.0570305Z,  Using cached virtualenv-20.36.1-py3-none-any.whl.metadata (4.7 kB),,0
+	2026-02-10T04:45:34.7886168Z,Collecting msgpack<2.0.0&comma;>=0.5.2 (from cachecontrol<0.15.0&comma;>=0.14.0->cachecontrol[filecache]<0.15.0&comma;>=0.14.0->poetry),,0
+	2026-02-10T04:45:34.8271532Z,  Using cached msgpack-1.1.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.1 kB),,0
+	2026-02-10T04:45:35.0784855Z,Collecting filelock>=3.8.0 (from cachecontrol[filecache]<0.15.0&comma;>=0.14.0->poetry),,0
+	2026-02-10T04:45:35.1165164Z,  Using cached filelock-3.20.3-py3-none-any.whl.metadata (2.1 kB),,0
+	2026-02-10T04:45:35.2450456Z,Collecting crashtest<0.5.0&comma;>=0.4.1 (from cleo<3.0.0&comma;>=2.1.0->poetry),,0
+	2026-02-10T04:45:35.3121325Z,  Using cached crashtest-0.4.1-py3-none-any.whl.metadata (1.1 kB),,0
+	2026-02-10T04:45:38.1823372Z,Collecting rapidfuzz<4.0.0&comma;>=3.0.0 (from cleo<3.0.0&comma;>=2.1.0->poetry),,0
+	2026-02-10T04:45:38.2093742Z,  Using cached rapidfuzz-3.14.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (12 kB),,0
+	2026-02-10T04:45:38.6147678Z,Collecting urllib3>=2.2.2 (from dulwich<2&comma;>=0.25.0->poetry),,0
+	2026-02-10T04:45:38.6645290Z,  Using cached urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB),,0
+	2026-02-10T04:45:38.9135687Z,Collecting typing_extensions>=4.6.0 (from dulwich<2&comma;>=0.25.0->poetry),,0
+	2026-02-10T04:45:38.9518255Z,  Using cached typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB),,0
+	2026-02-10T04:45:39.2048924Z,Collecting SecretStorage>=3.2 (from keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:39.2536023Z,  Using cached secretstorage-3.5.0-py3-none-any.whl.metadata (4.0 kB),,0
+	2026-02-10T04:45:39.3983720Z,Collecting jeepney>=0.4.2 (from keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:39.4277224Z,  Using cached jeepney-0.9.0-py3-none-any.whl.metadata (1.2 kB),,0
+	2026-02-10T04:45:40.0321024Z,Collecting importlib_metadata>=4.11.4 (from keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:40.0921612Z,  Using cached importlib_metadata-8.7.1-py3-none-any.whl.metadata (4.7 kB),,0
+	2026-02-10T04:45:40.2832621Z,Collecting jaraco.classes (from keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:40.3194896Z,  Using cached jaraco.classes-3.4.0-py3-none-any.whl.metadata (2.6 kB),,0
+	2026-02-10T04:45:40.5418338Z,Collecting jaraco.functools (from keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:40.5912286Z,  Using cached jaraco_functools-4.4.0-py3-none-any.whl.metadata (3.0 kB),,0
+	2026-02-10T04:45:40.7189374Z,Collecting jaraco.context (from keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:40.7382280Z,  Using cached jaraco_context-6.1.0-py3-none-any.whl.metadata (4.3 kB),,0
+	2026-02-10T04:45:40.9846137Z,Collecting httpx<1&comma;>=0.27.0 (from pbs-installer[download&comma;install]>=2025.6.10->poetry),,0
+	2026-02-10T04:45:41.0357523Z,  Using cached httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB),,0
+	2026-02-10T04:45:41.4236267Z,Collecting zstandard>=0.21.0 (from pbs-installer[download&comma;install]>=2025.6.10->poetry),,0
+	2026-02-10T04:45:41.4495248Z,  Using cached zstandard-0.25.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB),,0
+	2026-02-10T04:45:42.0622238Z,Collecting charset_normalizer<4&comma;>=2 (from requests<3.0&comma;>=2.26->poetry),,0
+	2026-02-10T04:45:42.1005167Z,  Using cached charset_normalizer-3.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (37 kB),,0
+	2026-02-10T04:45:42.2658838Z,Collecting idna<4&comma;>=2.5 (from requests<3.0&comma;>=2.26->poetry),,0
+	2026-02-10T04:45:42.3033811Z,  Using cached idna-3.11-py3-none-any.whl.metadata (8.4 kB),,0
+	2026-02-10T04:45:42.4880250Z,Collecting certifi>=2017.4.17 (from requests<3.0&comma;>=2.26->poetry),,0
+	2026-02-10T04:45:42.5164532Z,  Using cached certifi-2026.1.4-py3-none-any.whl.metadata (2.5 kB),,0
+	2026-02-10T04:45:42.8176350Z,Collecting distlib<1&comma;>=0.3.7 (from virtualenv>=20.26.6->poetry),,0
+	2026-02-10T04:45:42.8480698Z,  Using cached distlib-0.4.0-py2.py3-none-any.whl.metadata (5.2 kB),,0
+	2026-02-10T04:45:43.2073402Z,Collecting anyio (from httpx<1&comma;>=0.27.0->pbs-installer[download&comma;install]>=2025.6.10->poetry),,0
+	2026-02-10T04:45:43.2553538Z,  Using cached anyio-4.12.1-py3-none-any.whl.metadata (4.3 kB),,0
+	2026-02-10T04:45:43.4939085Z,Collecting httpcore==1.* (from httpx<1&comma;>=0.27.0->pbs-installer[download&comma;install]>=2025.6.10->poetry),,0
+	2026-02-10T04:45:43.7153269Z,  Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB),,0
+	2026-02-10T04:45:43.7819981Z,Collecting h11>=0.16 (from httpcore==1.*->httpx<1&comma;>=0.27.0->pbs-installer[download&comma;install]>=2025.6.10->poetry),,0
+	2026-02-10T04:45:43.8204862Z,  Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB),,0
+	2026-02-10T04:45:44.0731582Z,Collecting zipp>=3.20 (from importlib_metadata>=4.11.4->keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:44.0939924Z,  Using cached zipp-3.23.0-py3-none-any.whl.metadata (3.6 kB),,0
+	2026-02-10T04:45:46.0990140Z,Collecting cryptography>=2.0 (from SecretStorage>=3.2->keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:46.1350243Z,  Using cached cryptography-46.0.4-cp311-abi3-manylinux_2_28_x86_64.whl.metadata (5.7 kB),,0
+	2026-02-10T04:45:46.5130158Z,Collecting more-itertools (from jaraco.classes->keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:46.5499670Z,  Using cached more_itertools-10.8.0-py3-none-any.whl.metadata (39 kB),,0
+	2026-02-10T04:45:46.7284623Z,Collecting backports.tarfile (from jaraco.context->keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:46.7662525Z,  Using cached backports.tarfile-1.2.0-py3-none-any.whl.metadata (2.0 kB),,0
+	2026-02-10T04:45:47.5560957Z,Collecting cffi>=2.0.0 (from cryptography>=2.0->SecretStorage>=3.2->keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:47.5970473Z,  Using cached cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB),,0
+	2026-02-10T04:45:48.0000997Z,Collecting pycparser (from cffi>=2.0.0->cryptography>=2.0->SecretStorage>=3.2->keyring<26.0.0&comma;>=25.1.0->poetry),,0
+	2026-02-10T04:45:48.0384578Z,  Using cached pycparser-3.0-py3-none-any.whl.metadata (8.2 kB),,0
+	2026-02-10T04:45:48.1736226Z,Using cached poetry-2.3.2-py3-none-any.whl (287 kB),,0
+	2026-02-10T04:45:48.2043219Z,Using cached poetry_core-2.3.1-py3-none-any.whl (340 kB),,0
+	2026-02-10T04:45:48.2518836Z,Using cached build-1.4.0-py3-none-any.whl (24 kB),,0
+	2026-02-10T04:45:48.2906347Z,Using cached cachecontrol-0.14.4-py3-none-any.whl (22 kB),,0
+	2026-02-10T04:45:48.3215235Z,Using cached cleo-2.1.0-py3-none-any.whl (78 kB),,0
+	2026-02-10T04:45:48.3498358Z,Using cached dulwich-1.0.0-cp311-cp311-manylinux_2_28_x86_64.whl (1.4 MB),,0
+	2026-02-10T04:45:48.4314269Z,Using cached fastjsonschema-2.21.2-py3-none-any.whl (24 kB),,0
+	2026-02-10T04:45:48.4640831Z,Using cached findpython-0.7.1-py3-none-any.whl (21 kB),,0
+	2026-02-10T04:45:48.4987394Z,Using cached installer-0.7.0-py3-none-any.whl (453 kB),,0
+	2026-02-10T04:45:48.5267405Z,Using cached keyring-25.7.0-py3-none-any.whl (39 kB),,0
+	2026-02-10T04:45:48.5577597Z,Using cached packaging-26.0-py3-none-any.whl (74 kB),,0
+	2026-02-10T04:45:48.5781327Z,Using cached pbs_installer-2026.2.3-py3-none-any.whl (70 kB),,0
+	2026-02-10T04:45:48.6197472Z,Using cached pkginfo-1.12.1.2-py3-none-any.whl (32 kB),,0
+	2026-02-10T04:45:48.6467497Z,Using cached platformdirs-4.5.1-py3-none-any.whl (18 kB),,0
+	2026-02-10T04:45:48.6702143Z,Using cached pyproject_hooks-1.2.0-py3-none-any.whl (10 kB),,0
+	2026-02-10T04:45:48.6873587Z,Using cached requests-2.32.5-py3-none-any.whl (64 kB),,0
+	2026-02-10T04:45:48.7268468Z,Using cached requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB),,0
+	2026-02-10T04:45:48.7574655Z,Using cached shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB),,0
+	2026-02-10T04:45:48.7937982Z,Using cached tomlkit-0.14.0-py3-none-any.whl (39 kB),,0
+	2026-02-10T04:45:48.8322889Z,Using cached trove_classifiers-2026.1.14.14-py3-none-any.whl (14 kB),,0
+	2026-02-10T04:45:48.8530438Z,Using cached virtualenv-20.36.1-py3-none-any.whl (6.0 MB),,0
+	2026-02-10T04:45:48.9860783Z,Using cached certifi-2026.1.4-py3-none-any.whl (152 kB),,0
+	2026-02-10T04:45:49.0232296Z,Using cached charset_normalizer-3.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (151 kB),,0
+	2026-02-10T04:45:49.0494198Z,Using cached crashtest-0.4.1-py3-none-any.whl (7.6 kB),,0
+	2026-02-10T04:45:49.0696882Z,Using cached distlib-0.4.0-py2.py3-none-any.whl (469 kB),,0
+	2026-02-10T04:45:49.1488859Z,Using cached filelock-3.20.3-py3-none-any.whl (16 kB),,0
+	2026-02-10T04:45:49.3348586Z,Using cached httpx-0.28.1-py3-none-any.whl (73 kB),,0
+	2026-02-10T04:45:49.4961732Z,Using cached httpcore-1.0.9-py3-none-any.whl (78 kB),,0
+	2026-02-10T04:45:49.5338181Z,Using cached idna-3.11-py3-none-any.whl (71 kB),,0
+	2026-02-10T04:45:49.5708975Z,Using cached importlib_metadata-8.7.1-py3-none-any.whl (27 kB),,0
+	2026-02-10T04:45:49.6184891Z,Using cached jeepney-0.9.0-py3-none-any.whl (49 kB),,0
+	2026-02-10T04:45:49.6657348Z,Using cached msgpack-1.1.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (426 kB),,0
+	2026-02-10T04:45:49.7030890Z,Using cached rapidfuzz-3.14.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (3.2 MB),,0
+	2026-02-10T04:45:49.8605618Z,Using cached secretstorage-3.5.0-py3-none-any.whl (15 kB),,0
+	2026-02-10T04:45:49.8814408Z,Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB),,0
+	2026-02-10T04:45:49.9126586Z,Using cached urllib3-2.6.3-py3-none-any.whl (131 kB),,0
+	2026-02-10T04:45:49.9399213Z,Using cached zstandard-0.25.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.6 MB),,0
+	2026-02-10T04:45:50.0414940Z,Using cached jaraco.classes-3.4.0-py3-none-any.whl (6.8 kB),,0
+	2026-02-10T04:45:50.0689166Z,Using cached jaraco_context-6.1.0-py3-none-any.whl (7.1 kB),,0
+	2026-02-10T04:45:50.0990538Z,Using cached jaraco_functools-4.4.0-py3-none-any.whl (10 kB),,0
+	2026-02-10T04:45:50.1336282Z,Using cached cryptography-46.0.4-cp311-abi3-manylinux_2_28_x86_64.whl (4.5 MB),,0
+	2026-02-10T04:45:50.2143008Z,Using cached zipp-3.23.0-py3-none-any.whl (10 kB),,0
+	2026-02-10T04:45:50.2351126Z,Using cached anyio-4.12.1-py3-none-any.whl (113 kB),,0
+	2026-02-10T04:45:50.2531754Z,Using cached backports.tarfile-1.2.0-py3-none-any.whl (30 kB),,0
+	2026-02-10T04:45:50.2704973Z,Using cached more_itertools-10.8.0-py3-none-any.whl (69 kB),,0
+	2026-02-10T04:45:50.3004568Z,Using cached cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (215 kB),,0
+	2026-02-10T04:45:50.3296138Z,Using cached h11-0.16.0-py3-none-any.whl (37 kB),,0
+	2026-02-10T04:45:50.3501536Z,Using cached pycparser-3.0-py3-none-any.whl (48 kB),,0
+	2026-02-10T04:45:52.1480316Z,Installing collected packages: trove-classifiers&comma; fastjsonschema&comma; distlib&comma; zstandard&comma; zipp&comma; urllib3&comma; typing_extensions&comma; tomlkit&comma; shellingham&comma; rapidfuzz&comma; pyproject-hooks&comma; pycparser&comma; poetry-core&comma; platformdirs&comma; pkginfo&comma; pbs-installer&comma; packaging&comma; msgpack&comma; more-itertools&comma; jeepney&comma; installer&comma; idna&comma; h11&comma; filelock&comma; crashtest&comma; charset_normalizer&comma; certifi&comma; backports.tarfile&comma; virtualenv&comma; requests&comma; jaraco.functools&comma; jaraco.context&comma; jaraco.classes&comma; importlib_metadata&comma; httpcore&comma; findpython&comma; dulwich&comma; cleo&comma; cffi&comma; build&comma; anyio&comma; requests-toolbelt&comma; httpx&comma; cryptography&comma; cachecontrol&comma; SecretStorage&comma; keyring&comma; poetry,,0
+	2026-02-10T04:46:14.2053981Z,Successfully installed SecretStorage-3.5.0 anyio-4.12.1 backports.tarfile-1.2.0 build-1.4.0 cachecontrol-0.14.4 certifi-2026.1.4 cffi-2.0.0 charset_normalizer-3.4.4 cleo-2.1.0 crashtest-0.4.1 cryptography-46.0.4 distlib-0.4.0 dulwich-1.0.0 fastjsonschema-2.21.2 filelock-3.20.3 findpython-0.7.1 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.11 importlib_metadata-8.7.1 installer-0.7.0 jaraco.classes-3.4.0 jaraco.context-6.1.0 jaraco.functools-4.4.0 jeepney-0.9.0 keyring-25.7.0 more-itertools-10.8.0 msgpack-1.1.2 packaging-26.0 pbs-installer-2026.2.3 pkginfo-1.12.1.2 platformdirs-4.5.1 poetry-2.3.2 poetry-core-2.3.1 pycparser-3.0 pyproject-hooks-1.2.0 rapidfuzz-3.14.3 requests-2.32.5 requests-toolbelt-1.0.0 shellingham-1.5.4 tomlkit-0.14.0 trove-classifiers-2026.1.14.14 typing_extensions-4.15.0 urllib3-2.6.3 virtualenv-20.36.1 zipp-3.23.0 zstandard-0.25.0,,0
+	2026-02-10T04:46:14.7860564Z,,,1
+	2026-02-10T04:46:14.8121739Z,[notice] A new release of pip is available: 24.0 -> 26.0.1,,1
+	2026-02-10T04:46:14.8331929Z,[notice] To update&comma; run: pip install --upgrade pip,,1
+	2026-02-10T04:46:17.5315154Z,Running poetry install...,,0
+	2026-02-10T04:49:13.6269382Z,poetry install failed with --only main flag&comma; falling back to --no-dev,,0
+	2026-02-10T04:49:26.3823610Z,Collecting poetry==1.8.5,,0
+	2026-02-10T04:49:26.5386059Z,  Downloading poetry-1.8.5-py3-none-any.whl.metadata (6.9 kB),,0
+	2026-02-10T04:49:26.8184999Z,Requirement already satisfied: build<2.0.0&comma;>=1.0.3 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (1.4.0),,0
+	2026-02-10T04:49:26.8457850Z,Requirement already satisfied: cachecontrol<0.15.0&comma;>=0.14.0 in ./antenv/lib/python3.11/site-packages (from cachecontrol[filecache]<0.15.0&comma;>=0.14.0->poetry==1.8.5) (0.14.4),,0
+	2026-02-10T04:49:26.8757982Z,Requirement already satisfied: cleo<3.0.0&comma;>=2.1.0 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (2.1.0),,0
+	2026-02-10T04:49:26.9329212Z,Requirement already satisfied: crashtest<0.5.0&comma;>=0.4.1 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (0.4.1),,0
+	2026-02-10T04:49:28.2690122Z,Collecting dulwich<0.22.0&comma;>=0.21.2 (from poetry==1.8.5),,0
+	2026-02-10T04:49:28.3350008Z,  Downloading dulwich-0.21.7-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.3 kB),,0
+	2026-02-10T04:49:28.5115808Z,Requirement already satisfied: fastjsonschema<3.0.0&comma;>=2.18.0 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (2.21.2),,0
+	2026-02-10T04:49:28.5217607Z,Requirement already satisfied: installer<0.8.0&comma;>=0.7.0 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (0.7.0),,0
+	2026-02-10T04:49:28.8283046Z,Collecting keyring<25.0.0&comma;>=24.0.0 (from poetry==1.8.5),,0
+	2026-02-10T04:49:28.8584422Z,  Downloading keyring-24.3.1-py3-none-any.whl.metadata (20 kB),,0
+	2026-02-10T04:49:29.0020528Z,Requirement already satisfied: packaging>=23.1 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (26.0),,0
+	2026-02-10T04:49:29.1484403Z,Collecting pexpect<5.0.0&comma;>=4.7.0 (from poetry==1.8.5),,0
+	2026-02-10T04:49:29.1797382Z,  Downloading pexpect-4.9.0-py2.py3-none-any.whl.metadata (2.5 kB),,0
+	2026-02-10T04:49:29.3345755Z,Requirement already satisfied: pkginfo<2.0&comma;>=1.12 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (1.12.1.2),,0
+	2026-02-10T04:49:29.3549196Z,Requirement already satisfied: platformdirs<5&comma;>=3.0.0 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (4.5.1),,0
+	2026-02-10T04:49:29.5224821Z,Collecting poetry-core==1.9.1 (from poetry==1.8.5),,0
+	2026-02-10T04:49:29.5488307Z,  Downloading poetry_core-1.9.1-py3-none-any.whl.metadata (3.5 kB),,0
+	2026-02-10T04:49:29.8575155Z,Collecting poetry-plugin-export<2.0.0&comma;>=1.6.0 (from poetry==1.8.5),,0
+	2026-02-10T04:49:29.8934738Z,  Downloading poetry_plugin_export-1.10.0-py3-none-any.whl.metadata (3.6 kB),,0
+	2026-02-10T04:49:30.0300224Z,Requirement already satisfied: pyproject-hooks<2.0.0&comma;>=1.0.0 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (1.2.0),,0
+	2026-02-10T04:49:30.0590295Z,Requirement already satisfied: requests<3.0&comma;>=2.26 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (2.32.5),,0
+	2026-02-10T04:49:30.0898092Z,Requirement already satisfied: requests-toolbelt<2.0.0&comma;>=1.0.0 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (1.0.0),,0
+	2026-02-10T04:49:30.1177398Z,Requirement already satisfied: shellingham<2.0&comma;>=1.5 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (1.5.4),,0
+	2026-02-10T04:49:30.1573437Z,Requirement already satisfied: tomlkit<1.0.0&comma;>=0.11.4 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (0.14.0),,0
+	2026-02-10T04:49:30.1678086Z,Requirement already satisfied: trove-classifiers>=2022.5.19 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (2026.1.14.14),,0
+	2026-02-10T04:49:30.1896699Z,Requirement already satisfied: virtualenv<21.0.0&comma;>=20.26.6 in ./antenv/lib/python3.11/site-packages (from poetry==1.8.5) (20.36.1),,0
+	2026-02-10T04:49:30.2386423Z,Requirement already satisfied: msgpack<2.0.0&comma;>=0.5.2 in ./antenv/lib/python3.11/site-packages (from cachecontrol<0.15.0&comma;>=0.14.0->cachecontrol[filecache]<0.15.0&comma;>=0.14.0->poetry==1.8.5) (1.1.2),,0
+	2026-02-10T04:49:30.3244589Z,Requirement already satisfied: filelock>=3.8.0 in ./antenv/lib/python3.11/site-packages (from cachecontrol[filecache]<0.15.0&comma;>=0.14.0->poetry==1.8.5) (3.20.3),,0
+	2026-02-10T04:49:30.3609683Z,Requirement already satisfied: rapidfuzz<4.0.0&comma;>=3.0.0 in ./antenv/lib/python3.11/site-packages (from cleo<3.0.0&comma;>=2.1.0->poetry==1.8.5) (3.14.3),,0
+	2026-02-10T04:49:30.4018825Z,Requirement already satisfied: urllib3>=1.25 in ./antenv/lib/python3.11/site-packages (from dulwich<0.22.0&comma;>=0.21.2->poetry==1.8.5) (2.6.3),,0
+	2026-02-10T04:49:30.6648506Z,Requirement already satisfied: jaraco.classes in ./antenv/lib/python3.11/site-packages (from keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (3.4.0),,0
+	2026-02-10T04:49:30.6957117Z,Requirement already satisfied: importlib-metadata>=4.11.4 in ./antenv/lib/python3.11/site-packages (from keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (8.7.1),,0
+	2026-02-10T04:49:30.7163159Z,Requirement already satisfied: SecretStorage>=3.2 in ./antenv/lib/python3.11/site-packages (from keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (3.5.0),,0
+	2026-02-10T04:49:30.7448058Z,Requirement already satisfied: jeepney>=0.4.2 in ./antenv/lib/python3.11/site-packages (from keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (0.9.0),,0
+	2026-02-10T04:49:30.9461346Z,Collecting ptyprocess>=0.5 (from pexpect<5.0.0&comma;>=4.7.0->poetry==1.8.5),,0
+	2026-02-10T04:49:30.9637500Z,  Downloading ptyprocess-0.7.0-py2.py3-none-any.whl.metadata (1.3 kB),,0
+	2026-02-10T04:49:31.2259952Z,INFO: pip is looking at multiple versions of poetry-plugin-export to determine which version is compatible with other requirements. This could take a while.,,0
+	2026-02-10T04:49:31.2743875Z,Collecting poetry-plugin-export<2.0.0&comma;>=1.6.0 (from poetry==1.8.5),,0
+	2026-02-10T04:49:31.3111211Z,  Downloading poetry_plugin_export-1.9.0-py3-none-any.whl.metadata (3.1 kB),,0
+	2026-02-10T04:49:31.4824355Z,  Downloading poetry_plugin_export-1.8.0-py3-none-any.whl.metadata (2.8 kB),,0
+	2026-02-10T04:49:31.7726623Z,Requirement already satisfied: charset_normalizer<4&comma;>=2 in ./antenv/lib/python3.11/site-packages (from requests<3.0&comma;>=2.26->poetry==1.8.5) (3.4.4),,0
+	2026-02-10T04:49:31.8044456Z,Requirement already satisfied: idna<4&comma;>=2.5 in ./antenv/lib/python3.11/site-packages (from requests<3.0&comma;>=2.26->poetry==1.8.5) (3.11),,0
+	2026-02-10T04:49:31.8533407Z,Requirement already satisfied: certifi>=2017.4.17 in ./antenv/lib/python3.11/site-packages (from requests<3.0&comma;>=2.26->poetry==1.8.5) (2026.1.4),,0
+	2026-02-10T04:49:32.0426955Z,Requirement already satisfied: distlib<1&comma;>=0.3.7 in ./antenv/lib/python3.11/site-packages (from virtualenv<21.0.0&comma;>=20.26.6->poetry==1.8.5) (0.4.0),,0
+	2026-02-10T04:49:32.2489127Z,Requirement already satisfied: zipp>=3.20 in ./antenv/lib/python3.11/site-packages (from importlib-metadata>=4.11.4->keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (3.23.0),,0
+	2026-02-10T04:49:32.4068973Z,Requirement already satisfied: cryptography>=2.0 in ./antenv/lib/python3.11/site-packages (from SecretStorage>=3.2->keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (46.0.4),,0
+	2026-02-10T04:49:32.5149817Z,Requirement already satisfied: more-itertools in ./antenv/lib/python3.11/site-packages (from jaraco.classes->keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (10.8.0),,0
+	2026-02-10T04:49:32.6328067Z,Requirement already satisfied: cffi>=2.0.0 in ./antenv/lib/python3.11/site-packages (from cryptography>=2.0->SecretStorage>=3.2->keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (2.0.0),,0
+	2026-02-10T04:49:32.8280907Z,Requirement already satisfied: pycparser in ./antenv/lib/python3.11/site-packages (from cffi>=2.0.0->cryptography>=2.0->SecretStorage>=3.2->keyring<25.0.0&comma;>=24.0.0->poetry==1.8.5) (3.0),,0
+	2026-02-10T04:49:32.9362901Z,Downloading poetry-1.8.5-py3-none-any.whl (249 kB),,0
+	2026-02-10T04:49:33.0647142Z,   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250.0/250.0 kB 2.2 MB/s eta 0:00:00,,0
+	2026-02-10T04:49:33.1223358Z,Downloading poetry_core-1.9.1-py3-none-any.whl (309 kB),,0
+	2026-02-10T04:49:33.2199637Z,   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 309.5/309.5 kB 2.4 MB/s eta 0:00:00,,0
+	2026-02-10T04:49:33.2470900Z,Downloading dulwich-0.21.7-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB),,0
+	2026-02-10T04:49:33.4187638Z,   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 516.4/516.4 kB 3.1 MB/s eta 0:00:00,,0
+	2026-02-10T04:49:33.4449060Z,Downloading keyring-24.3.1-py3-none-any.whl (38 kB),,0
+	2026-02-10T04:49:33.5839785Z,Downloading pexpect-4.9.0-py2.py3-none-any.whl (63 kB),,0
+	2026-02-10T04:49:33.7040780Z,   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.8/63.8 kB 471.5 kB/s eta 0:00:00,,0
+	2026-02-10T04:49:33.8620906Z,Downloading poetry_plugin_export-1.8.0-py3-none-any.whl (10 kB),,0
+	2026-02-10T04:49:34.1392524Z,Downloading ptyprocess-0.7.0-py2.py3-none-any.whl (13 kB),,0
+	2026-02-10T04:49:37.5559411Z,Installing collected packages: ptyprocess&comma; poetry-core&comma; pexpect&comma; dulwich&comma; keyring&comma; poetry-plugin-export&comma; poetry,,0
+	2026-02-10T04:49:37.6646109Z,  Attempting uninstall: poetry-core,,0
+	2026-02-10T04:49:37.7109180Z,    Found existing installation: poetry-core 2.3.1,,0
+	2026-02-10T04:49:37.8124065Z,    Uninstalling poetry-core-2.3.1:,,0
+	2026-02-10T04:49:37.8493466Z,      Successfully uninstalled poetry-core-2.3.1,,0
+	2026-02-10T04:49:39.4847671Z,  Attempting uninstall: dulwich,,0
+	2026-02-10T04:49:39.5248520Z,    Found existing installation: dulwich 1.0.0,,0
+	2026-02-10T04:49:39.6133338Z,    Uninstalling dulwich-1.0.0:,,0
+	2026-02-10T04:49:39.6427259Z,      Successfully uninstalled dulwich-1.0.0,,0
+	2026-02-10T04:49:41.8049427Z,  Attempting uninstall: keyring,,0
+	2026-02-10T04:49:41.8827831Z,    Found existing installation: keyring 25.7.0,,0
+	2026-02-10T04:49:41.9395173Z,    Uninstalling keyring-25.7.0:,,0
+	2026-02-10T04:49:41.9800548Z,      Successfully uninstalled keyring-25.7.0,,0
+	2026-02-10T04:49:42.3500197Z,  Attempting uninstall: poetry,,0
+	2026-02-10T04:49:42.4183501Z,    Found existing installation: poetry 2.3.2,,0
+	2026-02-10T04:49:42.5264905Z,    Uninstalling poetry-2.3.2:,,0
+	2026-02-10T04:49:42.5962803Z,      Successfully uninstalled poetry-2.3.2,,0
+	2026-02-10T04:49:43.7171171Z,Successfully installed dulwich-0.21.7 keyring-24.3.1 pexpect-4.9.0 poetry-1.8.5 poetry-core-1.9.1 poetry-plugin-export-1.8.0 ptyprocess-0.7.0,,0
+	2026-02-10T04:49:43.8945526Z,,,1
+	2026-02-10T04:49:43.9272280Z,[notice] A new release of pip is available: 24.0 -> 26.0.1,,1
+	2026-02-10T04:49:43.9957501Z,[notice] To update&comma; run: pip install --upgrade pip,,1
+	2026-02-10T04:49:46.8625760Z,,,0
+	2026-02-10T04:49:46.8822774Z,[tool.poetry] section not found in /tmp/8de685ef6991e84/pyproject.toml,,0
+	2026-02-10T04:49:46.9135031Z,"2026-02-10 04:49:46"|WARNING|,,0
+	2026-02-10T04:49:46.9418246Z,[tool.poetry] section not found in /tmp/8de685ef6991e84/pyproject.toml | Exit code: 1 | Please review message | More information: https://aka.ms/troubleshoot-python,,0
+	2026-02-10T04:49:47.8695306Z,[notice] A new release of pip is available: 24.0 -> 26.0.1\n[notice] To update&comma; run: pip install --upgrade pip\n\n[notice] A new release of pip is available: 24.0 -> 26.0.1\n[notice] To update&comma; run: pip install --upgrade pip\n/bin/bash -c "oryx build /home/site/repository -o /home/site/wwwroot --platform python --platform-version 3.11 -p virtualenv_name=antenv --log-file /tmp/build-debug.log  -i /tmp/8de685ef6991e84 --compress-destination-dir | tee /tmp/oryx-build.log ; exit $PIPESTATUS ",,2
+2026-02-10T04:49:48.0835847Z,,b6c22570-6fac-4116-9fb0-08c0a923b4f5,0
+2026-02-10T04:49:48.2538985Z,Generating summary of Oryx build,8c2d6260-849c-4379-b630-019d7c898fd4,0
+2026-02-10T04:49:48.4732005Z,Parsing the build logs,9298024d-5f12-4eb5-b6c4-ca01b1186001,0
+2026-02-10T04:49:48.6116465Z,Found 1 issue(s),fb317ad3-af42-40ef-ae23-691bf441dca3,0
+2026-02-10T04:49:48.7171014Z,,0c96d87a-43d7-4bf9-9454-2ad42b5dc555,0
+2026-02-10T04:49:48.8314080Z,Build Summary :,e56b88e7-e31c-4859-9492-94e1670ccc44,0
+2026-02-10T04:49:48.9423876Z,===============,f847a060-ccfb-4691-abb8-b1bc7acac93f,0
+2026-02-10T04:49:49.0536753Z,Errors (0),0cd09957-7002-4b0a-b24a-607c292c0900,0
+2026-02-10T04:49:49.1589106Z,Warnings (1),238abd59-11bf-4a21-890f-97ecc77999a9,0
+2026-02-10T04:49:49.3079571Z,1. \n[tool.poetry] section not found in /tmp/8de685ef6991e84/pyproject.toml  ,c110d676-c301-4e06-8f93-0c79c0b54df3,0
+2026-02-10T04:49:49.5101730Z,-  Next Steps: Please review message,fcd90cf4-34bd-45a2-8008-0ec665dfe2f0,0
+2026-02-10T04:49:49.7036817Z,-  For more details you can browse to https://aka.ms/troubleshoot-python,eb68b8e7-c1c4-4f2c-8da2-f29bc202d657,0
+2026-02-10T04:49:49.9101792Z,,fee5e686-bc42-42a4-98b6-a40ef29e9b3f,0
+2026-02-10T04:49:50.0530726Z,,c9504d34-f407-4293-b09e-2a5bb17dc319,0
+2026-02-10T04:49:50.6502156Z,Deployment Failed. deployer = GitHub deploymentPath = ,034104ae-c819-4b6a-9990-cd70c75043c3,0

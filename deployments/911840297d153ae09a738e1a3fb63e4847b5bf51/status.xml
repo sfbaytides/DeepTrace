@@ -5,16 +5,25 @@
   <deployer>GitHub</deployer>
   <authorEmail>246928973+sfbaytides@users.noreply.github.com</authorEmail>
   <message>Add WSGI entry point for Azure deployment</message>
-  <progress>Running oryx build...</progress>
-  <status>Building</status>
-  <statusText>Building and Deploying '911840297d153ae09a738e1a3fb63e4847b5bf51'.</statusText>
+  <progress></progress>
+  <status>Failed</status>
+  <statusText></statusText>
   <lastSuccessEndTime />
   <receivedTime>2026-02-10T04:43:39.1265118Z</receivedTime>
   <startTime>2026-02-10T04:43:40.5501131Z</startTime>
-  <endTime />
-  <complete>False</complete>
+  <endTime>2026-02-10T04:49:50.1186895Z</endTime>
+  <complete>True</complete>
   <is_temp>False</is_temp>
   <is_readonly>False</is_readonly>
   <containerId>d34948fc56a2</containerId>
-  <buildSummary />
+  <buildSummary>
+    <warning>
+      <message>
+[tool.poetry] section not found in /tmp/8de685ef6991e84/pyproject.toml </message>
+      <timestamp>2026-02-10 04:49:46</timestamp>
+      <exitCode>1</exitCode>
+      <recommendation>Please review message</recommendation>
+      <urlToGetMoreInformation>https://aka.ms/troubleshoot-python</urlToGetMoreInformation>
+    </warning>
+  </buildSummary>
 </deployment>

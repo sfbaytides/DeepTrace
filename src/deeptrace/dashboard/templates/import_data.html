@@ -113,20 +113,18 @@
       <!-- FBI -->
       <div class="import-card">
         <div class="import-icon">🕵️</div>
-        <div class="status-badge status-planned">Planned</div>
+        <div class="status-badge status-active">Active</div>
         <h3 class="import-title">FBI Most Wanted</h3>
         <p class="import-description">
-          Connect to FBI Most Wanted and ViCAP databases for violent crime cases and wanted persons.
+          Import cases directly from FBI Most Wanted pages. Paste any FBI.gov wanted/kidnap URL.
         </p>
         <div class="form-group">
-          <input type="text" id="fbi_id" placeholder="FBI Case ID" class="form-input">
+          <input type="url" id="fbi_url" placeholder="https://www.fbi.gov/wanted/..." class="form-input">
         </div>
-        <button onclick="importFBI()" class="btn btn-secondary" style="width: 100%;" disabled>
+        <button onclick="importFBI()" class="btn btn-primary" style="width: 100%;">
           Import from FBI
         </button>
-        <small style="display: block; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-tertiary);">
-          API integration coming soon
-        </small>
+        <div id="fbi_status" style="display: none; margin-top: 0.75rem; padding: 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem;"></div>
       </div>
 
       <!-- CSV Import -->
@@ -226,8 +224,60 @@
       alert(`${source} integration is planned but not yet implemented. This feature will allow automatic import of case data directly into DeepTrace.`);
     }
 
+    function showStatus(element, type, message) {
+      element.style.display = 'block';
+      element.textContent = message;
+      const colors = {
+        danger: { bg: 'rgba(239, 68, 68, 0.1)', fg: 'var(--danger)' },
+        success: { bg: 'rgba(16, 185, 129, 0.1)', fg: 'var(--success)' },
+        info: { bg: 'rgba(59, 130, 246, 0.1)', fg: 'var(--accent)' }
+      };
+      element.style.background = colors[type].bg;
+      element.style.color = colors[type].fg;
+    }
+
+    async function importFBI() {
+      const url = document.getElementById('fbi_url').value.trim();
+      const statusDiv = document.getElementById('fbi_status');
+      const btn = event.target;
+
+      if (!url) {
+        showStatus(statusDiv, 'danger', 'Please enter an FBI URL');
+        return;
+      }
+      if (!url.includes('fbi.gov')) {
+        showStatus(statusDiv, 'danger', 'URL must be from fbi.gov');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Importing...';
+      showStatus(statusDiv, 'info', '⏳ Fetching case data from FBI...');
+
+      try {
+        const response = await fetch('/import/fbi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          showStatus(statusDiv, 'success', '✅ ' + data.message + ' - Redirecting...');
+          setTimeout(() => window.location.href = `/case/${data.case_id}`, 1500);
+        } else {
+          showStatus(statusDiv, 'danger', '❌ ' + (data.error || 'Import failed'));
+          btn.disabled = false;
+          btn.textContent = 'Import from FBI';
+        }
+      } catch (error) {
+        showStatus(statusDiv, 'danger', '❌ Network error: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = 'Import from FBI';
+      }
+    }
+
     function importNamUs() { showNotImplemented('NamUs'); }
-    function importFBI() { showNotImplemented('FBI'); }
     function importCSV() { showNotImplemented('CSV Import'); }
     function importJSON() { showNotImplemented('JSON Import'); }
     function importNCMEC() { showNotImplemented('NCMEC'); }
