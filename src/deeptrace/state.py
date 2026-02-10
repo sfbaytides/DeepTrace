@@ -1,12 +1,15 @@
 """Application state management."""
 
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from deeptrace.db import CaseDatabase
 
-CASES_DIR = Path.home() / ".deeptrace" / "cases"
+# Allow Azure Web App to override cases directory via environment variable
+_cases_dir_env = os.environ.get("DEEPTRACE_CASES_DIR")
+CASES_DIR = Path(_cases_dir_env) if _cases_dir_env else Path.home() / ".deeptrace" / "cases"
 
 
 def slugify(name: str) -> str:
