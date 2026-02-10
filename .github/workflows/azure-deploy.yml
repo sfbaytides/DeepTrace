@@ -8,6 +8,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: deeptrace
+  AZURE_RESOURCE_GROUP: deeptrace-rg
   PYTHON_VERSION: '3.11'
 
 jobs:
@@ -30,11 +31,16 @@ jobs:
 
     - name: Create deployment package
       run: |
-        zip -r deploy.zip . -x '*.git*' -x '*__pycache__*' -x '*.pyc'
+        zip -r deploy.zip . -x '*.git*' -x '*__pycache__*' -x '*.pyc' -x '*node_modules*'
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: deploy.zip
+      run: |
+        az webapp deployment source config-zip \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.AZURE_WEBAPP_NAME }} \
+          --src deploy.zip
