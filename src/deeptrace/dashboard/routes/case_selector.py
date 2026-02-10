@@ -47,16 +47,20 @@ def create_case():
 
     # Initialize database
     db_path = case_dir / "case.db"
-    db = CaseDatabase(db_path)
-    db.open()
-    db.initialize_schema()
+    try:
+        db = CaseDatabase(db_path)
+        with db:
+            db.initialize_schema()
+    except Exception:
+        # Clean up on failure so user can retry
+        import shutil
+        shutil.rmtree(case_dir, ignore_errors=True)
+        return "Failed to initialize case database", 500
 
     # Optionally store description in a metadata file
     if case_description:
         metadata_path = case_dir / "description.txt"
         metadata_path.write_text(case_description, encoding="utf-8")
-
-    db.close()
 
     # Set session and redirect to dashboard - NO CLI RESTART NEEDED!
     session["current_case"] = case_name

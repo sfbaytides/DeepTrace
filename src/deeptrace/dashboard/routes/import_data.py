@@ -272,7 +272,7 @@ def preview_url():
     Accepts JSON: {"url": "..."} or {"url": "...", "html": "..."}.
     If *html* is provided, skip the fetch (paste fallback).
     """
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     url = (data.get("url") or "").strip()
     pasted_html = (data.get("html") or "").strip()
 
@@ -332,7 +332,7 @@ def confirm_import():
 
     Expects JSON: {"action": "create_case"|"add_to_case", "data": {...}}
     """
-    payload = request.get_json()
+    payload = request.get_json(silent=True) or {}
     action = payload.get("action", "create_case")
     data = payload.get("data", {})
 
@@ -492,7 +492,7 @@ def import_fbi():
 
 def _legacy_import() -> tuple:
     """Handle old-style direct-import POST by running preview+confirm."""
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     url = (data.get("url") or "").strip()
     if not url:
         return jsonify({"error": "URL is required"}), 400
