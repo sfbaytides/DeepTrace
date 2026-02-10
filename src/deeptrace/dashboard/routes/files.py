@@ -8,7 +8,10 @@ import os
 from datetime import UTC, datetime
 from pathlib import Path
 
-import requests as http_requests
+try:
+    import requests as http_requests
+except ImportError:
+    http_requests = None  # type: ignore[assignment]
 
 from flask import Blueprint, Response, current_app, render_template, request
 
@@ -152,6 +155,8 @@ FORENSIC_SYSTEM_PROMPT = (
 
 def _run_ai_analysis(file_bytes: bytes, mime_type: str, filename: str) -> str:
     """Run AI analysis on file contents via Carl AI (Ollama)."""
+    if http_requests is None:
+        return "Error: requests library is not installed. Run: pip install requests"
     try:
         prompt_parts = [FORENSIC_SYSTEM_PROMPT, "", f"File: {filename} ({mime_type})", ""]
 

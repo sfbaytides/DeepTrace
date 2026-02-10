@@ -220,6 +220,7 @@ class TestCaseDatabase:
 def test_migrate_v3_to_v4_extracts_blobs(tmp_path):
     """v3 databases with BLOB data should migrate to disk files."""
     import hashlib
+
     from deeptrace.db import CaseDatabase, migrate_v3_to_v4
 
     db_path = tmp_path / "case.db"
@@ -284,6 +285,7 @@ def test_migrate_v3_to_v4_extracts_blobs(tmp_path):
 def test_open_v3_database_triggers_migration(tmp_path):
     """Opening a v3 case should auto-migrate to v4."""
     import sqlite3
+
     from deeptrace.db import CaseDatabase
 
     case_dir = tmp_path / "old-case"

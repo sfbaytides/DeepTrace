@@ -286,6 +286,7 @@ class TestFilesRoute:
 
     def test_link_and_unlink(self, client, app):
         from io import BytesIO
+
         import deeptrace.state as _state
 
         # Upload a file
@@ -335,8 +336,9 @@ class TestFilesRoute:
 
     def test_upload_writes_to_disk(self, client, app):
         """Upload should write file to attachments dir, not BLOB."""
-        from io import BytesIO
         import hashlib
+        from io import BytesIO
+
         import deeptrace.state as _state
 
         content = b"fake image data for disk test"
@@ -380,6 +382,7 @@ class TestFilesRoute:
     def test_delete_removes_disk_file(self, client, app):
         """Deleting an attachment should remove the file from disk."""
         from io import BytesIO
+
         import deeptrace.state as _state
 
         content = b"delete me"
@@ -423,6 +426,7 @@ class TestFilesRoute:
     def test_analyze_uses_carl_ai(self, client, app, monkeypatch):
         """AI analysis should use Carl (Ollama) not Anthropic."""
         from io import BytesIO
+
         import deeptrace.dashboard.routes.files as files_mod
 
         client.post(
@@ -431,18 +435,27 @@ class TestFilesRoute:
             content_type="multipart/form-data",
         )
 
-        # Mock the requests.post call used by Carl AI
-        class MockResponse:
-            status_code = 200
-            def json(self):
-                return {
-                    "response": "Analysis: blood spatter pattern consistent with blunt force trauma",
-                    "model": "qwen2.5:3b-instruct",
-                }
-            def raise_for_status(self):
-                pass
+        # Mock the requests module used by Carl AI
+        class MockRequests:
+            class exceptions:
+                Timeout = Exception
+                RequestException = Exception
 
-        monkeypatch.setattr(files_mod.http_requests, "post", lambda *a, **kw: MockResponse())
+            @staticmethod
+            def post(*a, **kw):
+                class MockResponse:
+                    status_code = 200
+                    def json(self):
+                        return {
+                            "response": "Analysis: blood spatter pattern "
+                            "consistent with blunt force trauma",
+                            "model": "qwen2.5:3b-instruct",
+                        }
+                    def raise_for_status(self):
+                        pass
+                return MockResponse()
+
+        monkeypatch.setattr(files_mod, "http_requests", MockRequests)
 
         resp = client.post("/files/1/analyze")
         assert resp.status_code == 200
@@ -460,6 +473,7 @@ class TestFilesRoute:
     def test_verify_integrity_fails_on_tamper(self, client, app):
         """Verify should detect tampered files."""
         from io import BytesIO
+
         import deeptrace.state as _state
 
         client.post(
