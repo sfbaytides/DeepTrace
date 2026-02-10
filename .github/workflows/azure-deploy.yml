@@ -31,16 +31,33 @@ jobs:
 
     - name: Create deployment package
       run: |
-        zip -r deploy.zip . -x '*.git*' -x '*__pycache__*' -x '*.pyc' -x '*node_modules*'
+        zip -r deploy.zip . \
+          -x '*.git*' \
+          -x '*__pycache__*' \
+          -x '*.pyc' \
+          -x '*node_modules*' \
+          -x '.venv/*' \
+          -x 'tests/*' \
+          -x 'docs/*' \
+          -x 'LogFiles/*' \
+          -x '*.egg-info/*'
 
     - name: Azure Login
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Deploy to Azure Web App
+    - name: Configure Azure App Settings
       run: |
-        az webapp deployment source config-zip \
+        az webapp config appsettings set \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --name ${{ env.AZURE_WEBAPP_NAME }} \
-          --src deploy.zip
+          --settings PYTHONPATH="/home/site/wwwroot/src"
+
+    - name: Deploy to Azure Web App
+      run: |
+        az webapp deploy \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --name ${{ env.AZURE_WEBAPP_NAME }} \
+          --src-path deploy.zip \
+          --type zip
