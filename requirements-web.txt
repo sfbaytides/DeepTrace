@@ -19,9 +19,6 @@ networkx>=3.1
 # Web content extraction
 trafilatura>=2.0.0
 
-# AI analysis
-anthropic>=0.52.0
-
 # For API integrations
 requests>=2.31.0
 httpx>=0.28.0

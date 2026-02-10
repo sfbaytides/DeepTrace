@@ -1,31 +1,41 @@
 """AI-powered source analysis routes: classify, extract, cross-reference."""
 
 import json
+import os
 from datetime import UTC, datetime
 
+import requests
 from flask import Blueprint, current_app, render_template, request
 
 bp = Blueprint("source_ai", __name__)
 
-MODEL = "claude-sonnet-4-20250514"
+# Carl (Ollama) configuration
+CARL_API_URL = os.getenv("CARL_API_URL", "https://ai.baytides.org/api/generate")
+CARL_DEFAULT_MODEL = os.getenv("CARL_DEFAULT_MODEL", "qwen2.5:3b-instruct")
 
 
 # ---------------------------------------------------------------------------
-# Shared Anthropic helper
+# Shared Carl helper
 # ---------------------------------------------------------------------------
 
-def _call_anthropic(prompt: str, system: str, max_tokens: int = 4096) -> str:
-    """Call the Anthropic API and return the text response."""
-    import anthropic
+def _call_carl(prompt: str, system: str, max_tokens: int = 4096) -> str:
+    """Call Carl AI (Ollama) and return the text response."""
+    full_prompt = f"{system}\n\nUser Query:\n{prompt}"
 
-    client = anthropic.Anthropic()
-    message = client.messages.create(
-        model=MODEL,
-        max_tokens=max_tokens,
-        system=system,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return message.content[0].text
+    payload = {
+        "model": CARL_DEFAULT_MODEL,
+        "prompt": full_prompt,
+        "stream": False,
+        "options": {
+            "temperature": 0.3,
+            "num_predict": max_tokens
+        }
+    }
+
+    response = requests.post(CARL_API_URL, json=payload, timeout=120)
+    response.raise_for_status()
+    data = response.json()
+    return data.get("response", "")
 
 
 def _record_analysis(db, source_id: int, mode: str, prompt: str,
@@ -37,7 +47,7 @@ def _record_analysis(db, source_id: int, mode: str, prompt: str,
             "INSERT INTO ai_analyses (entity_type, entity_id, mode, prompt, "
             "response, model, success, error, created_at) "
             "VALUES ('source', ?, ?, ?, ?, ?, ?, ?, ?)",
-            (source_id, mode, prompt[:2000], response[:50000], MODEL,
+            (source_id, mode, prompt[:2000], response[:50000], CARL_DEFAULT_MODEL,
              1 if success else 0, error, now),
         )
         return cur.lastrowid
@@ -85,7 +95,7 @@ Respond in JSON:
 }}"""
 
         try:
-            response_text = _call_anthropic(prompt, system, max_tokens=1024)
+            response_text = _call_carl(prompt, system, max_tokens=1024)
             # Extract JSON from response (handle markdown code blocks)
             json_str = response_text
             if "```json" in json_str:
@@ -100,8 +110,10 @@ Respond in JSON:
                                    source=source, result=result,
                                    analysis_id=analysis_id)
 
-        except ImportError:
-            return '<div style="color:var(--accent-red);padding:12px">anthropic SDK not installed. Run: pip install anthropic</div>'
+        except requests.exceptions.Timeout:
+            return '<div style="color:var(--accent-red);padding:12px">Carl AI request timed out. The model may be loading.</div>'
+        except requests.exceptions.RequestException as e:
+            return f'<div style="color:var(--accent-red);padding:12px">Carl AI request failed: {e}</div>'
         except Exception as e:
             _record_analysis(db, source_id, "classify", prompt,
                              str(e), success=False, error=str(e))
@@ -199,7 +211,7 @@ Rules:
 - Keep descriptions concise (under 200 chars each)"""
 
         try:
-            response_text = _call_anthropic(prompt, system, max_tokens=4096)
+            response_text = _call_carl(prompt, system, max_tokens=4096)
             json_str = response_text
             if "```json" in json_str:
                 json_str = json_str.split("```json")[1].split("```")[0]
@@ -231,8 +243,10 @@ Rules:
                                    source=source, staged_items=staged_items,
                                    analysis_id=analysis_id)
 
-        except ImportError:
-            return '<div style="color:var(--accent-red);padding:12px">anthropic SDK not installed. Run: pip install anthropic</div>'
+        except requests.exceptions.Timeout:
+            return '<div style="color:var(--accent-red);padding:12px">Carl AI request timed out. The model may be loading.</div>'
+        except requests.exceptions.RequestException as e:
+            return f'<div style="color:var(--accent-red);padding:12px">Carl AI request failed: {e}</div>'
         except Exception as e:
             _record_analysis(db, source_id, "extract", prompt,
                              str(e), success=False, error=str(e))
@@ -495,7 +509,7 @@ Analyze and respond in JSON:
 }}"""
 
         try:
-            response_text = _call_anthropic(prompt, system, max_tokens=4096)
+            response_text = _call_carl(prompt, system, max_tokens=4096)
             json_str = response_text
             if "```json" in json_str:
                 json_str = json_str.split("```json")[1].split("```")[0]
@@ -508,8 +522,10 @@ Analyze and respond in JSON:
             return render_template("partials/source_ai_crossref.html",
                                    source=source, result=result)
 
-        except ImportError:
-            return '<div style="color:var(--accent-red);padding:12px">anthropic SDK not installed. Run: pip install anthropic</div>'
+        except requests.exceptions.Timeout:
+            return '<div style="color:var(--accent-red);padding:12px">Carl AI request timed out. The model may be loading.</div>'
+        except requests.exceptions.RequestException as e:
+            return f'<div style="color:var(--accent-red);padding:12px">Carl AI request failed: {e}</div>'
         except Exception as e:
             _record_analysis(db, source_id, "cross-reference", prompt,
                              str(e), success=False, error=str(e))
