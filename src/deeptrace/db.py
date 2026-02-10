@@ -23,6 +23,7 @@ SCHEMA_VERSION = 2
 # 14. case_review_items (no FK)
 # 15. attachments (no FK)
 # 16. attachment_links (FK -> attachments)
+# 17. ai_analyses (FK -> evidence_items, hypotheses)
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -197,6 +198,19 @@ CREATE TABLE IF NOT EXISTS attachment_links (
     entity_type TEXT NOT NULL
         CHECK(entity_type IN ('evidence','source','event','hypothesis','suspect')),
     entity_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ai_analyses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entity_type TEXT NOT NULL CHECK(entity_type IN ('evidence', 'hypothesis', 'timeline')),
+    entity_id INTEGER NOT NULL,
+    mode TEXT NOT NULL CHECK(mode IN ('default', 'devils-advocate', 'red-hat', 'what-if', 'sensitivity')),
+    prompt TEXT NOT NULL,
+    response TEXT NOT NULL,
+    model TEXT NOT NULL,
+    success INTEGER NOT NULL DEFAULT 1,
+    error TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

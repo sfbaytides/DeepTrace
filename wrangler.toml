@@ -1,9 +1,15 @@
 # Cloudflare Pages Configuration for DeepTrace
 # Updated for wrangler 4.63.0
+# Note: This is for Pages, not Workers - no deployment via wrangler deploy
 
 name = "deeptrace"
 pages_build_output_dir = "."
 compatibility_date = "2026-02-01"
+
+# Build configuration (set to empty to avoid wrangler deploy error)
+[build]
+command = ""
+cwd = ""
 
 # For Cloudflare D1 Database (SQLite-compatible)
 [[d1_databases]]
