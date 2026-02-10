@@ -24,3 +24,5 @@ jobs:
           directory: .
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           wranglerVersion: '3'
+
+# Note: Repository is at baytides/DeepTrace (organization), not sfbaytides/DeepTrace (user)
