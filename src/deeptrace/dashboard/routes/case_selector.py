@@ -22,7 +22,7 @@ def selector():
                 cases.append(case_path.name)
 
     cases.sort()
-    return render_template("modern_case_selector.html", cases=cases)
+    return render_template("case_selector.html", cases=cases)
 
 
 @bp.route("/create", methods=["POST"])
