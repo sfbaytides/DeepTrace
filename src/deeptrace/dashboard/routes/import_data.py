@@ -1,23 +1,19 @@
 """Data import routes — unified URL importer with site-specific parsers."""
 
-import json
 import re
 from datetime import datetime
-from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
-from flask import Blueprint, current_app, jsonify, redirect, render_template, request, session
+from flask import Blueprint, jsonify, render_template, request, session
 
 from deeptrace.db import (
-    CaseDatabase,
     create_case,
     create_evidence_item,
     create_source,
     create_timeline_event,
     get_db_path,
 )
-from deeptrace.state import AppState, CASES_DIR
 
 bp = Blueprint("import_data", __name__)
 
@@ -49,38 +45,12 @@ def _fetch_page(url: str) -> str:
 # Site detection — maps domain fragments to specialized parsers
 # ---------------------------------------------------------------------------
 
-_KNOWN_SITES: dict[str, dict] = {
-    "fbi.gov": {
-        "name": "FBI",
-        "parser": "_parse_fbi_page",
-        "creator": "_create_case_from_fbi",
-        "reliability": "A",
-        "credibility": "1",
-    },
-    "namus.nij.ojp.gov": {
-        "name": "NamUs",
-        "parser": "_parse_namus_page",
-        "creator": "_create_case_from_namus",
-        "reliability": "A",
-        "credibility": "1",
-    },
-    "missingkids.org": {
-        "name": "NCMEC",
-        "parser": "_parse_ncmec_page",
-        "creator": "_create_case_from_ncmec",
-        "reliability": "A",
-        "credibility": "1",
-    },
-    "doenetwork.org": {
-        "name": "Doe Network",
-        "parser": "_parse_doe_page",
-        "creator": "_create_case_from_doe",
-        "reliability": "B",
-        "credibility": "2",
-    },
-}
+# Maps domain fragments → (parser_function, creator_function, name, reliability, credibility)
+# Using direct function references instead of string-based globals() lookup.
 
-# Default reliability for well-known news / gov domains
+_KNOWN_SITES: dict[str, dict] = {}  # Populated after function definitions below
+
+
 _DOMAIN_RELIABILITY: dict[str, tuple[str, str]] = {
     ".gov": ("B", "2"),
     ".mil": ("B", "2"),
@@ -116,6 +86,9 @@ def _guess_reliability(url: str) -> tuple[str, str]:
 # Generic page extractor (works on any URL)
 # ---------------------------------------------------------------------------
 
+_MAX_HTML_SIZE = 500_000  # Limit HTML to 500KB for regex safety
+
+
 def _strip_tags(html_fragment: str) -> str:
     """Remove HTML tags and normalize whitespace."""
     text = re.sub(r'<script[^>]*>.*?</script>', '', html_fragment, flags=re.DOTALL | re.IGNORECASE)
@@ -144,20 +117,23 @@ def _extract_meta(html: str, property_name: str) -> str:
 
 def _extract_body_text(html: str, max_chars: int = 5000) -> str:
     """Extract main body text from HTML, preferring <article> content."""
+    # Guard against huge pages
+    trimmed = html[:_MAX_HTML_SIZE]
+
     # Try <article> first
-    article = re.search(r'<article[^>]*>(.*?)</article>', html, re.DOTALL | re.IGNORECASE)
+    article = re.search(r'<article[^>]*>(.*?)</article>', trimmed, re.DOTALL | re.IGNORECASE)
     if article:
         text = _strip_tags(article.group(1))
         return text[:max_chars]
 
     # Try <main>
-    main = re.search(r'<main[^>]*>(.*?)</main>', html, re.DOTALL | re.IGNORECASE)
+    main = re.search(r'<main[^>]*>(.*?)</main>', trimmed, re.DOTALL | re.IGNORECASE)
     if main:
         text = _strip_tags(main.group(1))
         return text[:max_chars]
 
     # Fall back to all <p> tags
-    paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', html, re.DOTALL | re.IGNORECASE)
+    paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', trimmed, re.DOTALL | re.IGNORECASE)
     if paragraphs:
         chunks = [_strip_tags(p) for p in paragraphs if len(_strip_tags(p)) > 30]
         text = "\n\n".join(chunks)
@@ -168,13 +144,16 @@ def _extract_body_text(html: str, max_chars: int = 5000) -> str:
 
 def _extract_dates(html: str) -> list[str]:
     """Find date strings in HTML content."""
+    # Limit search scope
+    trimmed = html[:_MAX_HTML_SIZE]
+
     # ISO dates
-    iso_dates = re.findall(r'\b(\d{4}-\d{2}-\d{2})\b', html)
+    iso_dates = re.findall(r'\b(\d{4}-\d{2}-\d{2})\b', trimmed)
     # Long form dates
     long_dates = re.findall(
         r'\b((?:January|February|March|April|May|June|July|August|September|'
         r'October|November|December)\s+\d{1,2},?\s+\d{4})\b',
-        html, re.IGNORECASE,
+        trimmed, re.IGNORECASE,
     )
     # Deduplicate while preserving order
     seen = set()
@@ -207,7 +186,7 @@ def _parse_generic_page(html: str, url: str) -> dict:
         or _extract_meta(html, "twitter:description")
     )
     if not description:
-        paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', html, re.DOTALL | re.IGNORECASE)
+        paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', html[:_MAX_HTML_SIZE], re.DOTALL | re.IGNORECASE)
         for p in paragraphs:
             text = _strip_tags(p)
             if len(text) > 50:
@@ -251,6 +230,31 @@ def _parse_generic_page(html: str, url: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Case slug helpers
+# ---------------------------------------------------------------------------
+
+def _make_slug(prefix: str, text: str) -> str:
+    """Create a lowercase case-selector-compatible slug."""
+    slug_body = re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')[:50]
+    slug = f"{prefix}-{slug_body}" if slug_body else f"{prefix}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    return slug
+
+
+def _unique_case_id(base_id: str) -> str:
+    """If *base_id* already exists on disk, append a numeric suffix."""
+    db_path = get_db_path(base_id)
+    if not db_path.parent.exists():
+        return base_id
+    # Append -2, -3, etc.
+    for i in range(2, 100):
+        candidate = f"{base_id}-{i}"
+        if not get_db_path(candidate).parent.exists():
+            return candidate
+    # Fallback: timestamp
+    return f"{base_id}-{datetime.now().strftime('%H%M%S')}"
+
+
+# ---------------------------------------------------------------------------
 # Unified routes
 # ---------------------------------------------------------------------------
 
@@ -286,8 +290,7 @@ def preview_url():
         site_config = _detect_site(url) if url else None
 
         if site_config:
-            parser_name = site_config["parser"]
-            parser_fn = globals()[parser_name]
+            parser_fn = site_config["parser"]
             extracted = parser_fn(html, url)
             # Augment with body text if the specialized parser didn't include it
             if "body_text" not in extracted:
@@ -310,9 +313,9 @@ def preview_url():
         if code == 403:
             return jsonify({
                 "error": (
-                    f"The site returned 403 Forbidden (it may block automated "
-                    f"requests from cloud servers). You can paste the page HTML "
-                    f"instead using the fallback option below."
+                    "The site returned 403 Forbidden (it may block automated "
+                    "requests from cloud servers). You can paste the page HTML "
+                    "instead using the fallback option below."
                 ),
                 "needs_paste": True,
             }), 200  # 200 so the JS can show the paste UI
@@ -345,40 +348,50 @@ def confirm_import():
 
     try:
         if action == "create_case":
-            # Build a slug from the title
-            slug_base = re.sub(r'[^a-zA-Z0-9]+', '-', title)
-            slug_base = slug_base.strip('-')[:50]
-            case_id = f"WEB-{slug_base}" if slug_base else f"WEB-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            # Detect if this is a known-site import with a specialized creator
+            known_site = data.get("known_site", False)
+            site_config = _detect_site(url) if url and known_site else None
 
-            create_case(
-                case_id=case_id,
-                title=title,
-                summary=f"{case_type}. {description[:500]}",
-            )
+            if site_config and site_config.get("creator"):
+                # Use specialized creator for known sites
+                creator_fn = site_config["creator"]
+                case_id = creator_fn(data)
+            else:
+                # Generic case creation
+                case_id = _unique_case_id(_make_slug("web", title))
 
-            source_id = create_source(
-                case_id=case_id,
-                source_type=source_name,
-                description=f"{source_name}: {title}",
-                url=url,
-                source_reliability=reliability,
-                information_credibility=credibility,
-            )
-
-            # Store body text as evidence
-            content = body_text or description
-            if content:
-                create_evidence_item(
+                create_case(
                     case_id=case_id,
-                    item_type="Document",
-                    description=f"Imported from {source_name}: {title[:100]}",
-                    source_id=source_id,
-                    content=content,
+                    title=title,
+                    summary=f"{case_type}. {description[:500]}",
                 )
 
-            # Timeline events
-            for date_str in dates[:5]:
-                _add_timeline_event(case_id, date_str, source_name)
+                source_id = create_source(
+                    case_id=case_id,
+                    source_type=source_name,
+                    description=f"{source_name}: {title}",
+                    url=url,
+                    source_reliability=reliability,
+                    information_credibility=credibility,
+                )
+
+                # Store body text as evidence
+                content = body_text or description
+                if content:
+                    create_evidence_item(
+                        case_id=case_id,
+                        item_type="Document",
+                        description=f"Imported from {source_name}: {title[:100]}",
+                        source_id=source_id,
+                        content=content,
+                    )
+
+                # Timeline events
+                for date_str in dates[:5]:
+                    _add_timeline_event(case_id, date_str, source_name)
+
+            # Set session to newly created case
+            session["current_case"] = case_id
 
             return jsonify({
                 "status": "success",
@@ -390,6 +403,10 @@ def confirm_import():
             case_id = session.get("current_case")
             if not case_id:
                 return jsonify({"error": "No case is currently selected."}), 400
+
+            # Verify case exists
+            if not get_db_path(case_id).exists():
+                return jsonify({"error": f"Case '{case_id}' not found."}), 404
 
             source_id = create_source(
                 case_id=case_id,
@@ -428,9 +445,12 @@ def confirm_import():
 
 def _add_timeline_event(case_id: str, date_str: str, source_name: str) -> None:
     """Try to parse a date string and add a timeline event."""
-    for fmt in ("%Y-%m-%d", "%B %d, %Y", "%B %d %Y", "%Y-%m-%dT%H:%M:%S"):
+    # Normalize ISO-8601 datetime to date-only
+    clean = date_str.split("T")[0] if "T" in date_str else date_str
+
+    for fmt in ("%Y-%m-%d", "%B %d, %Y", "%B %d %Y"):
         try:
-            parsed = datetime.strptime(date_str.split("T")[0] if "T" in date_str else date_str, fmt)
+            parsed = datetime.strptime(clean, fmt)
             create_timeline_event(
                 case_id=case_id,
                 event_date=parsed.strftime("%Y-%m-%d"),
@@ -443,35 +463,34 @@ def _add_timeline_event(case_id: str, date_str: str, source_name: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Legacy routes — redirect to unified importer
-# (kept for backward compatibility; the old individual routes still work)
+# Legacy routes — backward compatibility for old-style direct imports
 # ---------------------------------------------------------------------------
 
 @bp.route("/namus", methods=["POST"])
 def import_namus():
     """Import from NamUs — delegates to unified preview+confirm."""
-    return _legacy_import("namus")
+    return _legacy_import()
 
 
 @bp.route("/ncmec", methods=["POST"])
 def import_ncmec():
     """Import from NCMEC."""
-    return _legacy_import("ncmec")
+    return _legacy_import()
 
 
 @bp.route("/doe", methods=["POST"])
 def import_doe():
     """Import from Doe Network."""
-    return _legacy_import("doe")
+    return _legacy_import()
 
 
 @bp.route("/fbi", methods=["POST"])
 def import_fbi():
     """Import from FBI."""
-    return _legacy_import("fbi")
+    return _legacy_import()
 
 
-def _legacy_import(source: str) -> tuple:
+def _legacy_import() -> tuple:
     """Handle old-style direct-import POST by running preview+confirm."""
     data = request.get_json()
     url = (data.get("url") or "").strip()
@@ -483,16 +502,13 @@ def _legacy_import(source: str) -> tuple:
         site_config = _detect_site(url)
 
         if site_config:
-            parser_fn = globals()[site_config["parser"]]
+            parser_fn = site_config["parser"]
             extracted = parser_fn(html, url)
-            creator_fn = globals()[site_config["creator"]]
+            creator_fn = site_config["creator"]
             case_id = creator_fn(extracted)
         else:
             extracted = _parse_generic_page(html, url)
-            # Use the confirm flow inline
-            slug_base = re.sub(r'[^a-zA-Z0-9]+', '-', extracted["title"])
-            slug_base = slug_base.strip('-')[:50]
-            case_id = f"WEB-{slug_base}"
+            case_id = _unique_case_id(_make_slug("web", extracted["title"]))
             create_case(case_id=case_id, title=extracted["title"],
                         summary=f"{extracted['case_type']}. {extracted['description'][:500]}")
             source_id = create_source(
@@ -505,6 +521,9 @@ def _legacy_import(source: str) -> tuple:
                                      description=f"Imported: {extracted['title'][:100]}",
                                      source_id=source_id, content=extracted["body_text"])
 
+        # Set session to newly created case
+        session["current_case"] = case_id
+
         return jsonify({
             "status": "success",
             "message": f"Imported: {extracted['title']}",
@@ -512,7 +531,16 @@ def _legacy_import(source: str) -> tuple:
         }), 200
 
     except httpx.HTTPStatusError as e:
-        return jsonify({"error": f"HTTP {e.response.status_code}: {e.response.reason_phrase}"}), 500
+        code = e.response.status_code
+        if code == 403:
+            return jsonify({
+                "error": (
+                    f"The site returned 403 Forbidden. It may block requests "
+                    f"from cloud servers. Try the unified importer at /import "
+                    f"which supports pasting page content as a fallback."
+                ),
+            }), 200
+        return jsonify({"error": f"HTTP {code}: {e.response.reason_phrase}"}), 500
     except httpx.HTTPError as e:
         return jsonify({"error": f"Failed to fetch page: {str(e)}"}), 500
     except Exception as e:
@@ -520,7 +548,7 @@ def _legacy_import(source: str) -> tuple:
 
 
 # ---------------------------------------------------------------------------
-# Specialized parsers (unchanged — called by site detection)
+# Specialized parsers (called by site detection)
 # ---------------------------------------------------------------------------
 
 def _parse_fbi_page(html: str, url: str) -> dict:
@@ -561,8 +589,7 @@ def _parse_fbi_page(html: str, url: str) -> dict:
 
 
 def _create_case_from_fbi(case_data: dict) -> str:
-    case_id_base = re.sub(r'[^a-zA-Z0-9]+', '-', case_data['title'].upper()).strip('-')[:40]
-    case_id = f"FBI-{case_id_base}"
+    case_id = _unique_case_id(_make_slug("fbi", case_data["title"]))
     create_case(case_id=case_id, title=case_data['title'],
                 summary=f"{case_data['case_type']}. {case_data['description'][:500]}")
     source_id = create_source(
@@ -597,7 +624,7 @@ def _parse_namus_page(html: str, url: str) -> dict:
 
 
 def _create_case_from_namus(case_data: dict) -> str:
-    case_id = f"NAMUS-{case_data['case_number']}"
+    case_id = _unique_case_id(f"namus-{case_data['case_number'].lower()}")
     create_case(case_id=case_id, title=case_data['title'],
                 summary=f"{case_data['case_type']}. NamUs #{case_data['case_number']}. {case_data['description'][:500]}")
     source_id = create_source(
@@ -631,7 +658,7 @@ def _parse_ncmec_page(html: str, url: str) -> dict:
 
 
 def _create_case_from_ncmec(case_data: dict) -> str:
-    case_id = f"NCMEC-{case_data['case_number']}"
+    case_id = _unique_case_id(f"ncmec-{case_data['case_number'].lower()}")
     create_case(case_id=case_id, title=case_data['title'],
                 summary=f"Missing Child (NCMEC). {case_data['description'][:500]}")
     source_id = create_source(
@@ -654,7 +681,7 @@ def _parse_doe_page(html: str, url: str) -> dict:
     description = ""
     for pattern in [r'<div[^>]*class="[^"]*case-details[^"]*"[^>]*>(.*?)</div>',
                     r'<p[^>]*>(.*?)</p>']:
-        matches = re.findall(pattern, html, re.DOTALL | re.IGNORECASE)
+        matches = re.findall(pattern, html[:_MAX_HTML_SIZE], re.DOTALL | re.IGNORECASE)
         if matches:
             chunks = [_strip_tags(m) for m in matches[:5] if len(_strip_tags(m)) > 10]
             description = ' '.join(chunks)
@@ -667,7 +694,7 @@ def _parse_doe_page(html: str, url: str) -> dict:
 
 
 def _create_case_from_doe(case_data: dict) -> str:
-    case_id = f"DOE-{case_data['case_number']}"
+    case_id = _unique_case_id(f"doe-{case_data['case_number'].lower()}")
     create_case(case_id=case_id, title=case_data['title'],
                 summary=f"{case_data['case_type']} (Doe Network). {case_data['description'][:500]}")
     source_id = create_source(
@@ -683,36 +710,36 @@ def _create_case_from_doe(case_data: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
-# File-based import routes (unchanged)
+# Populate _KNOWN_SITES with direct function references (no globals() lookup)
 # ---------------------------------------------------------------------------
 
-@bp.route("/csv", methods=["POST"])
-def import_csv():
-    """Batch import from CSV file."""
-    if "file" not in request.files:
-        return "No file provided", 400
-    file = request.files["file"]
-    if file.filename == "":
-        return "No file selected", 400
-    if not file.filename.endswith(".csv"):
-        return "File must be a CSV", 400
-    return {"status": "success", "message": f"CSV file '{file.filename}' would be imported here",
-            "note": "CSV parser pending"}, 200
-
-
-@bp.route("/json", methods=["POST"])
-def import_json():
-    """Batch import from JSON file."""
-    if "file" not in request.files:
-        return "No file provided", 400
-    file = request.files["file"]
-    if file.filename == "":
-        return "No file selected", 400
-    if not file.filename.endswith(".json"):
-        return "File must be JSON", 400
-    try:
-        data = json.load(file.stream)
-        return {"status": "success", "message": f"JSON file '{file.filename}' would be imported",
-                "records": len(data) if isinstance(data, list) else 1, "note": "JSON importer pending"}, 200
-    except json.JSONDecodeError as e:
-        return f"Invalid JSON: {str(e)}", 400
+_KNOWN_SITES.update({
+    "fbi.gov": {
+        "name": "FBI",
+        "parser": _parse_fbi_page,
+        "creator": _create_case_from_fbi,
+        "reliability": "A",
+        "credibility": "1",
+    },
+    "namus.nij.ojp.gov": {
+        "name": "NamUs",
+        "parser": _parse_namus_page,
+        "creator": _create_case_from_namus,
+        "reliability": "A",
+        "credibility": "1",
+    },
+    "missingkids.org": {
+        "name": "NCMEC",
+        "parser": _parse_ncmec_page,
+        "creator": _create_case_from_ncmec,
+        "reliability": "A",
+        "credibility": "1",
+    },
+    "doenetwork.org": {
+        "name": "Doe Network",
+        "parser": _parse_doe_page,
+        "creator": _create_case_from_doe,
+        "reliability": "B",
+        "credibility": "2",
+    },
+})
