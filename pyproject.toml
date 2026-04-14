@@ -31,7 +31,7 @@ ai = [
 ]
 dev = [
     "pytest>=8.0",
-    "pytest-cov>=4.1",
+    "pytest-cov>=7.1.0",
     "ruff>=0.5.0",
 ]
 
