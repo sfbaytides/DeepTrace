@@ -15,7 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 nlp = [
-    "spacy>=3.7.0",
+    "spacy>=3.8.14",
 ]
 network = [
     "networkx>=3.0",
