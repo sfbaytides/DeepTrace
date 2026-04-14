@@ -9,7 +9,7 @@ description = "Cold case investigation platform with AI-powered analytical reaso
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-    "typer>=0.15.0",
+    "typer>=0.24.1",
     "rich>=13.0.0",
 ]
 
